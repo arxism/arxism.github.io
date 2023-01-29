@@ -73,7 +73,7 @@ body:not([data-edit="true"]) .tile > svg {
   border-raadius: 4px;
   border: 1px solid var(--fg);
 }
-.tile[data-hot="true"] #move-buttons, .tile[data-hot="warm"] #move-buttons {
+.tile[data-hot="very"] #move-buttons, .tile[data-hot="true"] #move-buttons, .tile[data-hot="warm"] #move-buttons {
   bottom: 0;
   top: unset;
 }
