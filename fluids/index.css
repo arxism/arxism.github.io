@@ -1,7 +1,8 @@
 
 body {
-    background: var(--bg);
-    padding-left: 20px;
+  background: var(--bg);
+  padding-left: 20px;
+  font-family: "Courier new";
 }
 #sheet {
   padding: 20px;
@@ -118,7 +119,6 @@ text[data-custom-case="true"] {
 text, h1, h2, h3, h4, footer, #author, summary {
   fill: var(--fg);
   color: var(--fg);
-  font-family: "Courier new";
   font-weight: normal;
 }
 h4, a, details, summary {
