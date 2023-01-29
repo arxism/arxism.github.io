@@ -18,6 +18,9 @@ body {
 svg {
   overflow: visible;
 }
+body[data-edit="true"] .tile svg:hover {
+  cursor: pointer;
+}
 details {
   cursor: pointer;
   position: relative;
@@ -63,12 +66,16 @@ body:not([data-edit="true"]) .tile > svg {
 #move-buttons {
   display: flex;
   position: absolute;
-  left: 0;
+  right: 0;
   top: 0;
   background: var(--bg);
   opacity: 0.9;
   border-raadius: 4px;
   border: 1px solid var(--fg);
+}
+.tile[data-hot="true"] #move-buttons, .tile[data-hot="warm"] #move-buttons {
+  bottom: 0;
+  top: unset;
 }
 .tile:first-child .move-up, .tile:last-child .move-down {
  visibility: hidden;
@@ -80,6 +87,7 @@ body:not([data-edit="true"]) .tile > svg {
   text-decoration: underline;
   cursor: pointer;
   color: var(--fg);
+  padding: 10px;
 }
 .move-down:hover, .move-up:hover {
   color: lightblue;

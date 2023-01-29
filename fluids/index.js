@@ -186,6 +186,7 @@ const main = () => {
 
   edit.addEventListener('click', (e) => {
     const isEditing = !e.target.parentElement.open;
+    document.querySelector('#edit').innerText = isEditing ? 'x' : 'edit';
     document.body.dataset.edit = isEditing;
     document.querySelector('#title').contentEditable = isEditing;
     document.querySelector('#title').addEventListener('blur', (e) => {
@@ -215,7 +216,7 @@ const main = () => {
       fillElement.setAttribute('d', fill(volume));
       tile.dataset.hot = false;
       if (ml <= 100) tile.dataset.hot = 'cold';
-      if (ml > 600) tile.dataset.hot = 'warm';
+      if (ml > 500) tile.dataset.hot = 'warm';
       if (ml > 750) tile.dataset.hot = true;
       if (ml > 900) tile.dataset.hot = 'very';
       topElement.setAttribute('cy', 417.8 - volume);
