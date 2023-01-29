@@ -137,13 +137,12 @@ const setupConfig = () => {
 
 const main = () => {
   const search = getSearch();
-  const BROWSER_LIGHT = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
   const c = {
     title: search.get('title') ?? 'Fetish Fluids Report',
     link: search.get('link') ?? '',
     author: search.get('author') ?? '@SomoneOnFet',
     color: search.get('color') ?? '#8833aa',
-    theme: search.get('theme') ?? BROWSER_LIGHT === true ? 'light' : 'dark',
+    theme: search.get('theme') ?? 'dark',
     tileWidth: search.get('tileSize') ?? 125,
     textSize: search.get('textSize') ?? 55,
     kinks: search.getAll('kink')?.reduce((kinks, kink) => {
