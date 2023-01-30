@@ -1,10 +1,33 @@
-
 body {
   background: var(--bg);
-  padding-left: 20px;
   font-family: "Courier new";
+  display: flex;
+  margin: 0;
 }
-#sheet {
+
+body[data-edit="true"] .tile .jar:hover {
+  cursor: pointer;
+}
+
+body[data-mode="remove"] .tile .jar:hover,
+body[data-mode="swap"] .tile .jar:hover,
+body[data-mode="swap"] .tile[data-selected="true"] .jar {
+  outline: 3px solid var(--kink-color);
+}
+
+body[data-mode="remove"] #remove-jar,
+body[data-mode="swap"] #swap-jars {
+  background-color: var(--kink-color);
+  border-color: var(--kink-color);
+}
+
+*[contenteditable="true"] {
+  border-bottom: 1px dashed #999;
+  display: inline-block;
+}
+
+#jars,
+#empty {
   padding: 20px;
   display: flex;
   flex-flow: row wrap;
@@ -12,44 +35,16 @@ body {
   align-content: flex-start;
   color: var(--fg);
 }
-*[contenteditable="true"] {
-  border-bottom: 1px dashed #999;
-  display: inline;}
-svg {
+
+#jars:empty,
+#empty:empty {
+  display: none;
+}
+
+.jar {
   overflow: visible;
 }
-body[data-edit="true"] .tile svg:hover {
-  cursor: pointer;
-}
-details {
-  cursor: pointer;
-  position: relative;
-}
-summary {
-  text-decoration: underline;
-  padding-left: 20px;
-}
-details > * {
-  display: flex;
-  align-items: center;
-  margin: 8px 0;
-  color: var(--fg);
-}
-details[open] {
-  border: 1px solid #CCCA;
-  display: flex;
-  width: fit-content;
-  padding: 20px 20px 0 20px;
-  margin-top: 20px;
-  border-radius: 10px;
-}
-details[open] summary {
-  color: var(--fg);
-  text-align: right;
-  position: absolute;
-  top: 0;
-  right: 20px;
-}
+
 .tile {
   display: flex;
   flex-direction: column;
@@ -57,80 +52,87 @@ details[open] summary {
   margin-bottom: 10px;
   position: relative;
 }
-body:not([data-edit="true"]) .tile > svg {
+
+body:not([data-edit="true"]) .tile>.jar {
   pointer-events: none;
 }
+
+#fetishes-label {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+#config-options>label>*:first-child {
+  margin-top: 8px;
+}
+
+#config-options>label>select,
+#config-options>label>button {
+  margin-top: 8px;
+  padding: 5px 0;
+  flex: 1 0 50%;
+  text-align: center;
+}
+
 #fetishes {
   width: 20px;
+  flex: 1 0 100%;
 }
-#move-buttons {
-  display: flex;
-  position: absolute;
-  right: 0;
-  top: 0;
-  background: var(--bg);
-  opacity: 0.9;
-  border-raadius: 4px;
-  border: 1px solid var(--fg);
+
+h1,
+h2,
+h3 {
+  font-size: 30px;
 }
-.tile[data-hot="very"] #move-buttons, .tile[data-hot="true"] #move-buttons, .tile[data-hot="warm"] #move-buttons {
-  bottom: 0;
-  top: unset;
+
+h1,
+h2,
+h3 {
+  display: inline-block;
 }
-.tile:first-child .move-up, .tile:last-child .move-down {
- visibility: hidden;
- pointer-events: none;
-}
-.move-down, .move-up, .remove {
-  background: none;
-  border: none;
-  text-decoration: underline;
-  cursor: pointer;
-  color: var(--fg);
-  padding: 10px;
-}
-.move-down:hover, .move-up:hover {
-  color: lightblue;
-}
-.remove:hover {
-  color: red;
-}
-body[data-edit="false"] #move-buttons {
-  display: none;
-}
-h1, h2, h3 {
-    font-size: 30px;
-}
-h1, h2, h3, h4 {
+
+h4 {
   display: inline;
 }
+
 h3 {
   margin: 0;
   font-size: 20px;
 }
-footer {
-  margin-left: 20px;
-}
+
 text:first-of-type {
   text-decoration: underline;
 }
+
 text {
   font-size: var(--text-size);
   text-transform: capitalize;
 }
+
 text[data-custom-case="true"] {
   text-transform: unset;
 }
+
 .measure {
   text-transform: lowercase;
 }
-text, h1, h2, h3, h4, footer, #author, summary {
+
+text,
+h1,
+h2,
+h3,
+h4,
+footer,
+#author,
+summary {
   fill: var(--fg);
   color: var(--fg);
   font-weight: normal;
 }
-h4, a, details, summary {
-  display: inline;
+
+h4,
+a {
+  display: inline-block;
   color: #737373;
 }
 
@@ -140,38 +142,210 @@ h4, a, details, summary {
   width: var(--tile-width);
   margin-right: 10px;
 }
+
 #fill-top {
   stroke: var(--fg);
   fill: var(--kink-color);
   fill-opacity: 0.9;
 }
+
 #fill {
   fill: var(--kink-color);
   fill-opacity: 0.7;
   stroke-width: 0;
-  }
-.bubbles, .bubbles2 {
+}
+
+.tile[data-no-kinks="true"] #fill,
+.tile[data-no-kinks="true"] #fill-top {
+  fill: #2389da;
+}
+
+.bubbles,
+.bubbles2 {
   display: none;
 }
-.tile[data-hot="true"] .bubbles, .tile[data-hot="very"] .bubbles, .tile[data-hot="very"] .bubbles2 {
+
+.tile[data-hot="true"] .bubbles,
+.tile[data-hot="very"] .bubbles,
+.tile[data-hot="very"] .bubbles2 {
   display: block;
   fill: var(--fg);
   opacity: 0.5;
 }
-.tile[data-hot="true"] #fill, .tile[data-hot="true"] #fill-top, 
-.tile[data-hot="very"] #fill, .tile[data-hot="very"] #fill-top {
+
+.tile[data-hot="true"] #fill,
+.tile[data-hot="true"] #fill-top,
+.tile[data-hot="very"] #fill,
+.tile[data-hot="very"] #fill-top {
   filter: saturate(1.9) brightness(1.2);
 }
-.tile[data-hot="warm"] #fill, .tile[data-hot="warm"] #fill-top {
+
+.tile[data-hot="warm"] #fill,
+.tile[data-hot="warm"] #fill-top {
   filter: saturate(1.7) brightness(1.1);
 }
-.tile[data-hot="cold"] #fill, .tile[data-hot="cold"] #fill-top {
+
+.tile[data-hot="cold"] #fill,
+.tile[data-hot="cold"] #fill-top {
   filter: saturate(0.8) brightness(0.8);
 }
+
 #fill-top {
   stroke-width: 1.7;
 }
+
 #outline {
   stroke: var(--fg) !important;
-     fill:none;stroke:#000000;stroke-opacity:1;
+  fill: none;
+  stroke: #000000;
+  stroke-opacity: 1;
+}
+
+#config summary {
+  display: block;
+}
+
+#config[open] {
+  min-height: 100vh;
+  flex: 0 0 300px;
+  border-right: 1px solid var(--fg);
+  border-radius: 0;
+  padding: 10px;
+  margin: 0;
+  margin-right: 0px;
+  margin-right: 20px;
+  position: relative;
+}
+
+#edit>svg {
+  stroke: var(--fg);
+  margin: 30px 7px;
+  cursor: pointer;
+}
+
+#edit>svg:hover {
+  stroke: var(--kink-color);
+}
+
+@media screen and (max-width: 700px) {
+  body[data-edit="true"] {
+    flex-direction: column-reverse;
+    padding-bottom: 250px;
+  }
+
+  body[data-edit="true"] #main {
+    margin-left: 34px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-size: 15px;
+  }
+
+  h4 {
+    display: inline;
+  }
+
+  #edit>svg {
+    margin: 7px;
+  }
+
+  #config[open] {
+    margin: unset;
+    border-right: unset;
+    border-top: 1px solid var(--fg);
+    bottom: 0;
+    overflow-y: auto;
+    height: 200px;
+    width: calc(100% - 20px);
+    padding: 10px;
+    min-height: unset;
+    z-index: 1;
+    position: fixed;
+    background: var(--bg);
+  }
+}
+
+#config-options {
+  margin-top: 8px;
+  display: flex;
+  flex-flow: column;
+  color: var(--fg);
+}
+
+#config-options label {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+#config-options input {
+  padding: 5px;
+  accent-color: var(--kink-color);
+}
+
+#config[open] #edit>svg {
+  position: absolute;
+  cursor: pointer;
+  right: 0;
+  top: 0;
+}
+
+#config>div {
+  display: flex;
+  flex-flow: column;
+}
+
+#theme {
+  margin: 4px;
+  float: left;
+  display: flex;
+  flex-flow: row nowrap !important;
+}
+
+#theme label {
+  float: left;
+  width: 50%;
+  background-color: #EFEFEF;
+  border-radius: 4px;
+  border: 1px solid #D0D0D0;
+  overflow: auto;
+  flex: 1;
+}
+
+#theme label:first-child {
+  margin-right: 4;
+}
+
+#theme label span {
+  text-align: center;
+  font-size: 15px;
+  padding: 5px 0px;
+  display: block;
+}
+
+#theme label input {
+  position: absolute;
+  display: none;
+}
+
+#theme input:checked+span {
+  background-color: var(--kink-color);
+  color: #F7F7F7;
+}
+
+#theme #dark {
+  background-color: #CCC;
+  color: #FFF;
+}
+
+#theme #light {
+  background-color: #FFF;
+  color: #CCC;
+}
+
+#config-options>label>* {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
