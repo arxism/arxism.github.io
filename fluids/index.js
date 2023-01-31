@@ -424,8 +424,8 @@ draw();
 setupConfig();
 updateConfig(getConfig());
 
-if (!document.body.querySelectorAll('.tile').length) {
-  document.querySelector('#edit').click();
+if (!document.body.querySelectorAll('#jars .tile').length) {
+  document.querySelector('#edit > div').click();
 }
 window.addEventListener('hashchange', (e) => {
   sortKinks();
