@@ -238,15 +238,18 @@ a {
 }
 
 #config[open] {
+  position: fixed;
+  width: 300;
+  left: 0;
+  z-index: 1;
+  background: var(--bg);
   max-height: 100vh;
   overflow-y: auto;
-  flex: 0 0 300px;
   border-right: 1px solid var(--fg);
   border-radius: 0;
   padding: 10px;
   margin: 0;
   margin-right: 20px;
-  position: relative;
 }
 
 #edit {
@@ -299,9 +302,20 @@ select {
   flex-flow: column;
 }
 
+body[data-edit="true"] #main {
+  margin-left: 334px;
+}
+
+input,
+button,
+select {
+  height: 40px;
+}
+
+
 @media screen and (max-width: 700px) {
   body[data-edit="true"] {
-    flex-direction: column-reverse;
+    flex-direction: column;
     justify-content: flex-end;
     padding-bottom: 400px;
   }
@@ -314,12 +328,6 @@ select {
   h2,
   h3 {
     font-size: 15px;
-  }
-
-  input,
-  button,
-  select {
-    height: 40px;
   }
 
   h4,
@@ -342,7 +350,7 @@ select {
     max-height: 50vh;
     width: calc(100% - 20px);
     padding: 10px;
-    min-height: unset;
+    height: unset;
     z-index: 1;
     position: fixed;
     background: var(--bg);
@@ -376,7 +384,7 @@ select {
 
 #theme label span {
   text-align: center;
-  font-size: 40px;
+  font-size: 30px;
   padding: 5px 0px;
   display: block;
 }

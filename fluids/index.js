@@ -1,57 +1,85 @@
-const fetishes = [
-  "Being Dominant",
-  "Being \\submissive",
-  "Being \\a Master",
-  "Being \\a \\slave",
-  "Being \\a Brat",
-  "Sadism",
-  "Masochism",
-  "Bondage/ Restraints",
-  "Age play",
-  "Anal",
-  "Biting",
-  "Blood Play",
-  "Body Modification",
-  "Breath Play",
-  "Casual Intimacy",
-  "Cock Worship",
-  "Collars & Leads",
-  "Consensual NonConsent",
-  "Cuddling",
-  "Daddy/girl",
-  "Deep Thoughtful Discussion",
-  "Electrical Play",
-  "Exhibit -ionism",
-  "Eye Contact",
-  "Feet",
-  "Findom",
-  "Fire play",
-  "Free Use",
-  "Furry",
-  "Gags & Blindfolds",
-  "High Protocol",
-  "Humiliation & Degradation",
-  "Impact",
-  "Intelligence",
-  "Kissing/ Making Out",
-  "Knife Play",
-  "Leather, Latex",
-  "Lingerie",
-  "Multiple Partners",
-  "Needles",
-  "Pet Play",
-  "Role play",
-  "Rope Play",
-  "Rules & Assignments",
-  "Sex \\in Public",
-  "Tearing Clothes",
-  "Watersports",
-  "Wax Play",
-  "Wrestling"
-];
+const fetishes = {
+  "Being Dominant": "Being Dominant",
+  "Being submissive": "Being \\submissive",
+  "Being a Master": "Being \\a Master",
+  "Being a slave": "Being \\a \\slave",
+  "Being a Brat": "Being \\a Brat",
+  "Sadism": "Sadism",
+  "Masochism": "Masochism",
+  "Bondage/Restraints": "Bondage/ Restraints",
+  "Age play": "Age play",
+  "Anal": "Anal",
+  "Biting": "Biting",
+  "Blood Play": "Blood Play",
+  "Body Modification": "Body Modification",
+  "Breath Play": "Breath Play",
+  "Casual Intimacy": "Casual Intimacy",
+  "Cock Worship": "Cock Worship",
+  "Collars & Leads": "Collars & Leads",
+  "Consensual NonConsent": "Consensual NonConsent",
+  "Cuddling": "Cuddling",
+  "Daddy/girl": "Daddy/girl",
+  "Deep Thoughtful Discussion": "Deep Thoughtful Discussion",
+  "Electrical Play": "Electrical Play",
+  "Exhibitionism": "Exhibit -ionism",
+  "Eye Contact": "Eye Contact",
+  "Feet": "Feet",
+  "Findom": "Findom",
+  "Fire play": "Fire play",
+  "Free Use": "Free Use",
+  "Furry": "Furry",
+  "Gags & Blindfolds": "Gags & Blindfolds",
+  "High Protocol": "High Protocol",
+  "Humiliation & Degradation": "Humiliation & Degradation",
+  "Impact": "Impact",
+  "Intelligence": "Intelligence",
+  "Kissing/Making Out": "Kissing/ Making Out",
+  "Knife Play": "Knife Play",
+  "Leather, Latex": "Leather, Latex",
+  "Lingerie": "Lingerie",
+  "Multiple Partners": "Multiple Partners",
+  "Needles": "Needles",
+  "Pet Play": "Pet Play",
+  "Role play": "Role play",
+  "Rope Play": "Rope Play",
+  "Rules & Assignments": "Rules & Assignments",
+  "Sex in Public": "Sex \\in Public",
+  "Tearing Clothes": "Tearing Clothes",
+  "Watersports": "Watersports",
+  "Wax Play": "Wax Play",
+  "Wrestling": "Wrestling"
+};
 
 const MAX = 1000;
 const getSearch = () => new URLSearchParams(window.location.hash.substring(1));
+const getConfig = () => {
+
+  let search = getSearch();
+  if (search.get('all') !== null) {
+    updateHash('all', null);
+    Object.entries(fetishes).forEach(([_, v]) => updateHash('kink', `${v}:0`))
+    search = getSearch();
+  }
+  const config = {
+    sort: search.get('sort') ?? 'custom',
+    title: search.get('title') ?? 'Fetish Fluids Report',
+    link: search.get('link') ?? '',
+    author: search.get('author') ?? '@SomoneOnFet',
+    color: search.get('color') ?? '#8833aa',
+    theme: search.get('theme') ?? 'dark',
+    tileWidth: search.get('tileSize') ?? 160,
+    textSize: search.get('textSize') ?? 48,
+    kinks: search.getAll('kink')?.reduce((kinks, kink) => {
+      const [k, v] = kink.split(':');
+      return { ...kinks, [k]: v }
+    },
+      {}
+    ),
+    note: search.get('note') ?? '> Always wear protection when working with fetish fluids.',
+  }
+
+  return config;
+}
 const fill = (amount) => `m 43.7 ${413 - amount} l 0 ${amount} a 136.1 44.3 0 0 0 1.5 5.1 a 136.1 44.3 0 0 0 136.1 44.3 a 136.1 44.3 0 0 0 136.2 -44.3 l 0.5 -5.1 l 0 -${amount} l -0.7 0 a 136.2 40.6 0 0 1 -136 39.4 a 136.2 40.6 0 0 1 -135.9 -39.4 l -1.7 0 z`;
 
 const drawBeaker = (c, name, ml) => {
@@ -170,12 +198,39 @@ const updateConfig = (config) => {
   document.getElementById('zoom').value = config?.tileWidth;
   document.getElementById('text-zoom').value = config?.textSize;
   document.querySelector('#dark > input').checked = config?.theme !== 'light';
+  document.querySelector('#light > input').checked = config?.theme == 'light';
   document.title = `${config.author} - ${config.title}`;
   if (config.sort !== 'custom') {
     document.querySelector('#swap-jars').disabled = true;
   }
   document.getElementById('sort').value = config?.sort;
   document.getElementById('remove-jar').disabled = !Object.keys(config.kinks).length;
+
+  const edit = document.querySelector('details');
+  edit.addEventListener('click', (e) => {
+    const isEditing = !e.target.parentElement.parentElement.open;
+    document.body.dataset.edit = isEditing;
+    document.querySelector('#title').contentEditable = isEditing;
+    document.querySelector('#title').addEventListener('blur', (e) => {
+      updateHash('title', e.target.innerText);
+    });
+    document.querySelector('#author').contentEditable = isEditing;
+    document.querySelector('#author').addEventListener('blur', (e) => {
+      updateHash('author', e.target.innerText);
+    });
+    document.querySelector('footer').contentEditable = isEditing;
+    document.querySelector('footer').addEventListener('blur', (e) => {
+      updateHash('note', e.target.innerText);
+    });
+
+    if (!isEditing) {
+      delete document.body.dataset.mode;
+      updateHash('selected', null);
+      main();
+    }
+  })
+
+
 };
 
 const setupConfig = () => {
@@ -253,10 +308,10 @@ const setupConfig = () => {
   empty.value = "";
   empty.innerText = "Presets";
   document.getElementById('fetishes').appendChild(empty);
-  fetishes.forEach(f => {
+  Object.entries(fetishes).forEach(([k, v]) => {
     const option = document.createElement('option');
-    option.value = f;
-    option.innerText = f;
+    option.value = v;
+    option.innerText = k;
     document.getElementById('fetishes').appendChild(option);
   })
   document.getElementById('fetishes').addEventListener('change', (e) => {
@@ -275,38 +330,13 @@ const setupConfig = () => {
 }
 
 const main = () => {
-  let search = getSearch();
-  if (search.get('all') !== null) {
-    updateHash('all', null);
-    fetishes.forEach(f => updateHash('kink', `${f}:0`))
-    search = getSearch();
-  }
-  const c = {
-    sort: search.get('sort') ?? 'custom',
-    title: search.get('title') ?? 'Fetish Fluids Report',
-    link: search.get('link') ?? '',
-    author: search.get('author') ?? '@SomoneOnFet',
-    color: search.get('color') ?? '#8833aa',
-    theme: search.get('theme') ?? 'dark',
-    tileWidth: search.get('tileSize') ?? 160,
-    textSize: search.get('textSize') ?? 48,
-    kinks: search.getAll('kink')?.reduce((kinks, kink) => {
-      const [k, v] = kink.split(':');
-      return { ...kinks, [k]: v }
-    },
-      {}
-    ),
-    note: search.get('note') ?? '> Always wear protection when working with fetish fluids.',
-  }
-  updateConfig(c);
-
+  const c = getConfig();
   // This was developed by Lord @Arx the Dominant
   // https://commons.wikimedia.org/wiki/File:Beakers.svg
   // https://commons.wikimedia.org/wiki/File:Icon-bubbles-by-made-756174.svg
 
   const root = document.querySelector(':root');
   const total = document.querySelector('h2');
-  const edit = document.querySelector('details');
   root.style.setProperty('--bg', c.theme === 'light' ? '#FFF' : '#232323');
   root.style.setProperty('--fg', c.theme === 'light' ? '#000' : '#FFF');
   root.style.setProperty('--kink-color', c.color);
@@ -328,29 +358,6 @@ const main = () => {
   document.querySelector('#date').innerHTML = (new Date()).toISOString().substring(0, 10);
   document.querySelector('h4').innerText = `\u0074\u0065\u006d\u0070\u006c\u0061\u0074\u0065 \u0062\u0079 `;
   document.querySelector('footer').innerHTML = c.note;
-
-  edit.addEventListener('click', (e) => {
-    const isEditing = !e.target.parentElement.parentElement.open;
-    document.body.dataset.edit = isEditing;
-    document.querySelector('#title').contentEditable = isEditing;
-    document.querySelector('#title').addEventListener('blur', (e) => {
-      updateHash('title', e.target.innerText);
-    });
-    document.querySelector('#author').contentEditable = isEditing;
-    document.querySelector('#author').addEventListener('blur', (e) => {
-      updateHash('author', e.target.innerText);
-    });
-    document.querySelector('footer').contentEditable = isEditing;
-    document.querySelector('footer').addEventListener('blur', (e) => {
-      updateHash('note', e.target.innerText);
-    });
-
-    if (!isEditing) {
-      delete document.body.dataset.mode;
-      updateHash('selected', null);
-      main();
-    }
-  })
 
   Object.entries(kinks).map(([name, ml]) => {
     const clone = drawBeaker(c, name, ml);
@@ -379,6 +386,7 @@ const main = () => {
 
 main();
 setupConfig();
+updateConfig(getConfig());
 if (!document.body.querySelectorAll('.tile').length) {
   document.querySelector('#edit').click();
 }
