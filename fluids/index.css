@@ -446,6 +446,10 @@ select {
     margin-left: 34px;
   }
 
+  body[data-edit="true"] #capture {
+    display: none;
+  }
+
   h1,
   h2,
   h3 {
