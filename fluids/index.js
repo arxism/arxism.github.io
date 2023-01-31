@@ -201,7 +201,7 @@ const updateConfig = (config) => {
   document.getElementById('theme').value = config?.theme;
   document.getElementById('data').value = Object.entries(config.kinks).reduce((all, [k, v]) => {
     return `${all}${Math.min(Math.max(v, 0), 100)} ${k}\n`
-    }, '');
+  }, '');
   document.title = `${config.author} - ${config.title}`;
   if (config.sort !== 'custom') {
     document.querySelector('#swap-jars').disabled = true;
@@ -210,29 +210,31 @@ const updateConfig = (config) => {
   document.getElementById('remove-jar').disabled = !Object.keys(config.kinks).length;
 
   const edit = document.querySelector('#edit');
-  edit.addEventListener('click', (e) => {
-    const isEditing = !e.target.parentElement.parentElement.open;
-    document.body.dataset.edit = isEditing;
-    document.querySelector('#title').contentEditable = isEditing;
-    document.querySelector('#title').addEventListener('blur', (e) => {
-      updateHash('title', e.target.innerText);
-    });
-    document.querySelector('#author').contentEditable = isEditing;
-    document.querySelector('#author').addEventListener('blur', (e) => {
-      updateHash('author', e.target.innerText);
-    });
-    document.querySelector('footer').contentEditable = isEditing;
-    document.querySelector('footer').addEventListener('blur', (e) => {
-      updateHash('note', e.target.innerText);
-    });
+  const newEdit = edit.cloneNode(true);
+  edit.parentNode.replaceChild(newEdit, edit);
+  newEdit.addEventListener('click', (e) => {
+    window.setTimeout(() => {
+      const isEditing = e.target.parentElement.parentElement.open;
+      document.body.dataset.edit = isEditing;
+      document.querySelector('#title').contentEditable = isEditing;
+      document.querySelector('#title').addEventListener('blur', (e) => {
+        updateHash('title', e.target.innerText);
+      });
+      document.querySelector('#author').contentEditable = isEditing;
+      document.querySelector('#author').addEventListener('blur', (e) => {
+        updateHash('author', e.target.innerText);
+      });
+      document.querySelector('footer').contentEditable = isEditing;
+      document.querySelector('footer').addEventListener('blur', (e) => {
+        updateHash('note', e.target.innerText);
+      });
 
-    if (!isEditing) {
-      delete document.body.dataset.mode;
-      draw();
-    }
+      if (!isEditing) {
+        delete document.body.dataset.mode;
+        draw();
+      }
+    }, 10)
   })
-
-
 };
 
 const setupConfig = () => {
@@ -270,7 +272,7 @@ const setupConfig = () => {
     kinks.forEach(k => {
       const [v, ...rest] = k.split(' ');
       if (v && k) {
-        updateHash('kink', `${rest.join(' ')}:${v.replace(/[^0-9&.]/g,'')}`);
+        updateHash('kink', `${rest.join(' ')}:${v.replace(/[^0-9&.]/g, '')}`);
       }
     })
   })
