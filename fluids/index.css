@@ -6,7 +6,7 @@ body {
   min-height: 100vh;
 }
 
-body[data-edit="true"] .tile .jar:hover {
+#jars .tile .jar:hover {
   cursor: pointer;
 }
 
@@ -74,10 +74,6 @@ footer {
   align-items: flex-start;
   margin-bottom: 10px;
   position: relative;
-}
-
-body:not([data-edit="true"]) .tile>.jar {
-  pointer-events: none;
 }
 
 #fetishes-label {
@@ -380,7 +376,7 @@ select {
 
 #theme label span {
   text-align: center;
-  font-size: 30px;
+  font-size: 40px;
   padding: 5px 0px;
   display: block;
 }

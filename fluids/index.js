@@ -1,35 +1,53 @@
 const fetishes = [
-  'Being dominant',
-  'Being submissive',
-  'Exhibit -ionism',
-  'Public Sex',
-  'Impact',
-  'Collars & Lingerie',
-  'Tearing Off Clothes',
-  'Role-play',
-  'Anal',
-  'Blood/ Needles',
-  'Water Sports',
-  'Body Modification',
-  'Wax Play',
-  'Rules & Assignments',
-  'Free Use',
-  'Humiliation & Degradation',
-  'Bondage',
-  'Cock Worship',
-  'Kissing/ Making Out',
-  'Multiple Partners',
-  'Choking & Breath Play',
-  'Consensual NonConsent',
-  'Feet',
-  'Deep Thoughtful Discussion',
-  'Leather, Latex',
-  'Furry',
-  'High Protocol',
-  'Sadism',
-  'Casual Intimacy',
-  'Gags & Blindfolds',
-  'Putting Things \\in Jars',
+  "Being Dominant",
+  "Being \\submissive",
+  "Being \\a Master",
+  "Being \\a \\slave",
+  "Being \\a Brat",
+  "Sadism",
+  "Masochism",
+  "Bondage/ Restraints",
+  "Age play",
+  "Anal",
+  "Biting",
+  "Blood Play",
+  "Body Modification",
+  "Breath Play",
+  "Casual Intimacy",
+  "Cock Worship",
+  "Collars & Leads",
+  "Consensual NonConsent",
+  "Cuddling",
+  "Daddy/girl",
+  "Deep Thoughtful Discussion",
+  "Electrical Play",
+  "Exhibit -ionism",
+  "Eye Contact",
+  "Feet",
+  "Findom",
+  "Fire play",
+  "Free Use",
+  "Furry",
+  "Gags & Blindfolds",
+  "High Protocol",
+  "Humiliation & Degradation",
+  "Impact",
+  "Intelligence",
+  "Kissing/ Making Out",
+  "Knife Play",
+  "Leather, Latex",
+  "Lingerie",
+  "Multiple Partners",
+  "Needles",
+  "Pet Play",
+  "Role play",
+  "Rope Play",
+  "Rules & Assignments",
+  "Sex \\in Public",
+  "Tearing Clothes",
+  "Watersports",
+  "Wax Play",
+  "Wrestling"
 ];
 
 const MAX = 1000;
@@ -205,20 +223,29 @@ const setupConfig = () => {
     }
   })
   document.getElementById('swap-jars').addEventListener('click', (e) => {
-    document.querySelectorAll('.jar').forEach(jar => {
-      jar.addEventListener('click', (e) => {
-        const selected = getSearch().get('selected');
-        if (selected) {
-          swapKinks(selected, jar.parentElement.dataset.kink);
-          updateHash('selected', null);
-          delete document.body.dataset.mode;
-        } else {
-          updateHash('selected', jar.parentElement.dataset.kink);
-          window.setTimeout(() => document.getElementById('swap-jars').click(), 200);
-        }
+    const jars = document.querySelector('#jars > .tile');
+    if (document.body.dataset.mode === 'swap' && !jars?.length) {
+      delete document.body.dataset.mode;
+      updateHash('selected', null);
+      main();
+    } else {
+      document.querySelectorAll('.jar').forEach(jar => {
+        document.body.dataset.mode = 'swap';
+        jar.addEventListener('click', (e) => {
+          const selected = getSearch().get('selected');
+          if (selected) {
+            swapKinks(selected, jar.parentElement.dataset.kink);
+            updateHash('selected', null);
+            window.setTimeout(() => document.getElementById('swap-jars').click(), 10);
+            delete document.body.dataset.mode;
+          } else {
+            updateHash('selected', jar.parentElement.dataset.kink);
+            window.setTimeout(() => document.getElementById('swap-jars').click(), 10);
+            delete document.body.dataset.mode;
+          }
+        })
       })
-    })
-    document.body.dataset.mode = 'swap';
+    }
   })
 
   document.getElementById('fetishes').innerHTML = '';
@@ -248,7 +275,12 @@ const setupConfig = () => {
 }
 
 const main = () => {
-  const search = getSearch();
+  let search = getSearch();
+  if (search.get('all') !== null) {
+    updateHash('all', null);
+    fetishes.forEach(f => updateHash('kink', `${f}:0`))
+    search = getSearch();
+  }
   const c = {
     sort: search.get('sort') ?? 'custom',
     title: search.get('title') ?? 'Fetish Fluids Report',
@@ -312,6 +344,12 @@ const main = () => {
     document.querySelector('footer').addEventListener('blur', (e) => {
       updateHash('note', e.target.innerText);
     });
+
+    if (!isEditing) {
+      delete document.body.dataset.mode;
+      updateHash('selected', null);
+      main();
+    }
   })
 
   Object.entries(kinks).map(([name, ml]) => {
