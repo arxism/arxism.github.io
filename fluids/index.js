@@ -199,7 +199,7 @@ const updateConfig = (config) => {
   document.getElementById('text-zoom').value = config?.textSize;
   document.getElementById('unit-type').value = config?.unit;
   document.getElementById('theme').value = config?.theme;
-  document.getElementById('import').value = Object.entries(config.kinks).reduce((all, [k, v]) => {
+  document.getElementById('data').value = Object.entries(config.kinks).reduce((all, [k, v]) => {
     return `${all}${v } ${k}\n`
     }, '');
   document.title = `${config.author} - ${config.title}`;
@@ -228,7 +228,6 @@ const updateConfig = (config) => {
 
     if (!isEditing) {
       delete document.body.dataset.mode;
-      updateHash('selected', null);
       draw();
     }
   })
@@ -260,6 +259,20 @@ const setupConfig = () => {
   })
   document.querySelector('#theme').addEventListener('change', (e) => {
     updateHash('theme', e.target.value);
+  })
+  document.getElementById('import').addEventListener('click', (e) => {
+    const search = getSearch();
+    const text = document.getElementById('data');
+    const kinks = text.value.split('\n');
+    search.delete('kink');
+    window.location.hash = `#${search.toString()}`;
+    console.log(kinks);
+    kinks.forEach(k => {
+      const [v, ...rest] = k.split(' ');
+      if (v && k) {
+        updateHash('kink', `${rest.join(' ')}:${v.replace(/[^0-9&.]/g,'')}`);
+      }
+    })
   })
   document.getElementById('profile-address').addEventListener('blur', (e) => {
     updateHash('link', e.target.value);

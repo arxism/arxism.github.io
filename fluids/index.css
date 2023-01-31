@@ -81,7 +81,7 @@ footer {
   flex-flow: row wrap;
 }
 
-#import {
+#data {
   resize: none;
   height: 100px;
 }
