@@ -262,6 +262,12 @@ const setupConfig = () => {
   document.querySelector('#theme').addEventListener('change', (e) => {
     updateHash('theme', e.target.value);
   })
+  document.getElementById('fetish-text').addEventListener('keydown', (e) => {
+    if (e.code === 'Enter') {
+      document.getElementById('add-jar').click(); 
+      e.target.focus();
+    }
+  });
   document.getElementById('import').addEventListener('click', (e) => {
     const search = getSearch();
     const text = document.getElementById('data');
