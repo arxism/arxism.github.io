@@ -10,27 +10,13 @@
 <body data-edit="false">
   <details id="config">
     <summary id="edit">
-      <svg width="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-        <g id="SVGRepo_iconCarrier">
-          <path d="M11 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22H15C20 22 22 20 22 15V13" stroke-width="1.5"
-            stroke-linecap="round" stroke-linejoin="round"></path>
-          <path
-            d="M16.04 3.02001L8.16 10.9C7.86 11.2 7.56 11.79 7.5 12.22L7.07 15.23C6.91 16.32 7.68 17.08 8.77 16.93L11.78 16.5C12.2 16.44 12.79 16.14 13.1 15.84L20.98 7.96001C22.34 6.60001 22.98 5.02001 20.98 3.02001C18.98 1.02001 17.4 1.66001 16.04 3.02001Z"
-            stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round">
-          </path>
-          <path d="M14.91 4.1499C15.58 6.5399 17.45 8.4099 19.85 9.0899" stroke-width="1.5" stroke-miterlimit="10"
-            stroke-linecap="round" stroke-linejoin="round"></path>
-        </g>
-      </svg>
+      <div>EDIT</div>
     </summary>
-    <h3>Edit Menu</h3>
     <div id="config-options">
       <label id="fetishes-label">
         Jar Actions:&nbsp;
-        <input placeholder="New fetish" id="fetish-text" /><select id="fetishes">
-        </select>
+        <input placeholder="New fetish" id="fetish-text" />
+        <select id="fetishes"> </select>
         <button id="add-jar">Add</button>
         <button id="remove-jar">Remove</button>
         <button id="swap-jars">Swap</button>
@@ -70,15 +56,19 @@
     </div>
   </details>
   <div id="main">
-    <h1 id="title"></h1>
-    <h2 id="total"></h2>
-    <br />
-    <h3><a id="author" href=""></a></h3>&nbsp;
-    <h3 id="date"></h3>
-    <h4></h4><a href="https://fetlife.com/users/14822790">@Arx</a>
-    <div id="jars"></div>
-    <div id="empty"></div>
-    <footer id="#note" />
+    <div id="title-area">
+      <h1 id="title"></h1>
+      <h2 id="total"></h2>
+      <br />
+      <h3><a id="author" href=""></a></h3>&nbsp;
+      <h3 id="date"></h3>
+      <h4></h4><a href="https://fetlife.com/users/14822790">@Arx</a>
+    </div>
+    <div id="content">
+      <div id="jars"></div>
+      <div id="empty"></div>
+      <footer id="#note" />
+    </div>
   </div>
 
   <template id="beaker">

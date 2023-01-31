@@ -89,8 +89,9 @@ const swapKinks = (a, b) => {
   window.location.hash = `#${search.toString()}`;
 }
 
-const sortKinks = (order = 'custom') => {
+const sortKinks = (o) => {
   const search = getSearch();
+  const order = o ?? search.get('sort') ?? 'custom';
   const kinks = search.getAll('kink')
   if (order === 'asc') {
     kinks.sort((a, b) => a.split(':')[1] - b.split(':')[1]);
@@ -255,8 +256,8 @@ const main = () => {
     author: search.get('author') ?? '@SomoneOnFet',
     color: search.get('color') ?? '#8833aa',
     theme: search.get('theme') ?? 'dark',
-    tileWidth: search.get('tileSize') ?? 125,
-    textSize: search.get('textSize') ?? 55,
+    tileWidth: search.get('tileSize') ?? 160,
+    textSize: search.get('textSize') ?? 48,
     kinks: search.getAll('kink')?.reduce((kinks, kink) => {
       const [k, v] = kink.split(':');
       return { ...kinks, [k]: v }
@@ -287,9 +288,9 @@ const main = () => {
     Object.entries(c.kinks).map(([name, ml]) => [name, Math.max(Math.min(ml, MAX), 0)])
   );
 
-  document.querySelector('h1').innerHTML = c.title;
+  document.querySelector('h1').innerHTML = `${c.title} `;
   const totalMl = Object.values(kinks).reduce((total, cur) => total + cur, 0).toFixed(2);
-  total.innerHTML = `- ${totalMl} ml`;
+  total.innerHTML = `${totalMl} ml`;
   document.querySelector('#author').innerHTML = c.author;
   document.querySelector('#author').href = c.link;
   document.querySelector('#date').innerHTML = (new Date()).toISOString().substring(0, 10);
@@ -298,7 +299,6 @@ const main = () => {
 
   edit.addEventListener('click', (e) => {
     const isEditing = !e.target.parentElement.parentElement.open;
-    console.log(e.target)
     document.body.dataset.edit = isEditing;
     document.querySelector('#title').contentEditable = isEditing;
     document.querySelector('#title').addEventListener('blur', (e) => {
@@ -345,5 +345,6 @@ if (!document.body.querySelectorAll('.tile').length) {
   document.querySelector('#edit').click();
 }
 window.addEventListener('hashchange', (e) => {
+  sortKinks();
   main();
 })

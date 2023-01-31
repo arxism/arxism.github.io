@@ -3,6 +3,7 @@ body {
   font-family: "Courier new";
   display: flex;
   margin: 0;
+  min-height: 100vh;
 }
 
 body[data-edit="true"] .tile .jar:hover {
@@ -24,6 +25,28 @@ body[data-mode="swap"] #swap-jars {
 *[contenteditable="true"] {
   border-bottom: 1px dashed #999;
   display: inline-block;
+}
+
+#main,
+#content {
+  display: flex;
+  flex-direction: column;
+}
+
+#content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+footer {
+  flex: 0;
+  margin-bottom: 20px;
+}
+
+#jars:not(:empty),
+#empty:not(:empty) {
+  flex: 1;
 }
 
 #jars,
@@ -70,13 +93,27 @@ body:not([data-edit="true"]) .tile>.jar {
 #config-options>label>button {
   margin-top: 8px;
   padding: 5px 0;
-  flex: 1 0 50%;
+  flex: 1 0 calc(50% - 8px);
   text-align: center;
+}
+
+#fetishes,
+#remove-jar {
+  margin-right: 8px;
 }
 
 #fetishes {
   width: 20px;
   flex: 1 0 100%;
+}
+
+h1,
+h2 {
+  margin-bottom: 4px;
+}
+
+h2 {
+  margin-top: 4px;
 }
 
 h1,
@@ -132,7 +169,6 @@ summary {
 
 h4,
 a {
-  display: inline-block;
   color: #737373;
 }
 
@@ -206,31 +242,72 @@ a {
 }
 
 #config[open] {
-  min-height: 100vh;
+  max-height: 100vh;
+  overflow-y: auto;
   flex: 0 0 300px;
   border-right: 1px solid var(--fg);
   border-radius: 0;
   padding: 10px;
   margin: 0;
-  margin-right: 0px;
   margin-right: 20px;
   position: relative;
 }
 
-#edit>svg {
-  stroke: var(--fg);
-  margin: 30px 7px;
+#edit {
+  margin: 26px 7px 30px 0;
   cursor: pointer;
+  border-style: solid;
+  border-color: var(--fg);
+  border-width: 1px 1px 1px 0;
+  background: var(--fg);
+  color: var(--bg);
+  padding: 2px 2px 2px 0;
 }
 
-#edit>svg:hover {
-  stroke: var(--kink-color);
+#edit:hover {
+  background: var(--kink-color);
+  border-color: var(--kink-color);
+}
+
+input,
+button,
+select {
+  height: 30px;
+}
+
+#config-options {
+  margin-top: 20px;
+  display: flex;
+  flex-flow: column;
+  color: var(--fg);
+}
+
+#config-options label {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+#config-options input {
+  accent-color: var(--kink-color);
+}
+
+#config[open] #edit {
+  position: absolute;
+  cursor: pointer;
+  right: 0;
+  top: 0;
+}
+
+#config>div {
+  display: flex;
+  flex-flow: column;
 }
 
 @media screen and (max-width: 700px) {
   body[data-edit="true"] {
     flex-direction: column-reverse;
-    padding-bottom: 250px;
+    justify-content: flex-end;
+    padding-bottom: 400px;
   }
 
   body[data-edit="true"] #main {
@@ -243,11 +320,19 @@ a {
     font-size: 15px;
   }
 
-  h4 {
+  input,
+  button,
+  select {
+    height: 40px;
+  }
+
+  h4,
+  h4+a {
+    font-size: 12px;
     display: inline;
   }
 
-  #edit>svg {
+  #edit {
     margin: 7px;
   }
 
@@ -257,7 +342,8 @@ a {
     border-top: 1px solid var(--fg);
     bottom: 0;
     overflow-y: auto;
-    height: 200px;
+    height: 400px;
+    max-height: 50vh;
     width: calc(100% - 20px);
     padding: 10px;
     min-height: unset;
@@ -265,35 +351,10 @@ a {
     position: fixed;
     background: var(--bg);
   }
-}
 
-#config-options {
-  margin-top: 8px;
-  display: flex;
-  flex-flow: column;
-  color: var(--fg);
-}
-
-#config-options label {
-  margin-top: 8px;
-  margin-bottom: 8px;
-}
-
-#config-options input {
-  padding: 5px;
-  accent-color: var(--kink-color);
-}
-
-#config[open] #edit>svg {
-  position: absolute;
-  cursor: pointer;
-  right: 0;
-  top: 0;
-}
-
-#config>div {
-  display: flex;
-  flex-flow: column;
+  #config-options {
+    margin-top: 8px;
+  }
 }
 
 #theme {
@@ -314,12 +375,12 @@ a {
 }
 
 #theme label:first-child {
-  margin-right: 4;
+  margin-right: 8px;
 }
 
 #theme label span {
   text-align: center;
-  font-size: 15px;
+  font-size: 30px;
   padding: 5px 0px;
   display: block;
 }
@@ -345,7 +406,5 @@ a {
 }
 
 #config-options>label>* {
-  display: flex;
-  flex-direction: column;
   width: 100%;
 }
