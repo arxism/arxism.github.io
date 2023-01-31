@@ -15,15 +15,19 @@
     </summary>
     <div id="config-options">
       <label id="fetishes-label">
-        Jar Actions:&nbsp;
+        <div class="config-label">Jar Actions:&nbsp;</div>
         <input placeholder="New fetish" id="fetish-text" />
-        <select id="fetishes"> </select>
-        <button id="add-jar">Add</button>
-        <button id="remove-jar">Remove</button>
-        <button id="swap-jars">Swap</button>
+        <div class="row">
+          <select id="fetishes"> </select>
+          <button id="add-jar">Add</button>
+        </div>
+        <div class="row">
+          <button id="remove-jar">Remove</button>
+          <button id="swap-jars">Swap</button>
+        </div>
       </label>
       <label id="sort-label">
-        Sort:&nbsp;
+        <div class="config-label">Sort:&nbsp;</div>
         <select id="sort">
           <option label="Custom" value="custom" />
           <option label="Alpha" value="alpha" />
@@ -32,31 +36,39 @@
         </select>
       </label>
       <label>
-        Profile Link:&nbsp;
+        <div class="config-label">Profile Link:&nbsp;</div>
         <input id="profile-address" placeholder="https://fetlife.com/users/..." />
       </label>
       <label>
-        Fluid Color:&nbsp;
+        <div class="config-label">Fluid Color:&nbsp;</div>
         <input id="color" type="color" />
       </label>
       <label>
-        Jar Size:&nbsp;
+        <div class="config-label">Jar Size:&nbsp;</div>
         <input id="zoom" type="range" min="5" max="400" />
       </label>
       <label>
-        Text Size:&nbsp;
+        <div class="config-label">Text Size:&nbsp;</div>
         <input id="text-zoom" type="range" min="40" max="80" />
       </label>
       <label>
-        Theme:&nbsp;
-        <div id="theme">
-          <label id="dark"><input type="radio" name="toggle"><span>dark</span></label>
-          <label id="light"><input type="radio" name="toggle"><span>light</span></label>
-        </div>
+        <div class="config-label">Unit Type:&nbsp;</div>
+        <select id="unit-type">
+          <option label="volume" value="volume" />
+          <option label="percent" value="percent" />
+        </select>
       </label>
       <label>
-        Profile Link:&nbsp;
-        <input multiline id="import" placeholder="bdsm test or similar" />
+        <div class="config-label">Theme:&nbsp;</div>
+        <select id="theme">
+          <option label="dark" value="dark" />
+          <option label="light" value="light" />
+        </select>
+      </label>
+      <label>
+        <div class="config-label">Bulk Import:&nbsp;</div>
+        <textarea id="import" placeholder="bdsm test or similar"></textarea>
+        <button id="import-button">Import</button>
       </label>
     </div>
   </details>

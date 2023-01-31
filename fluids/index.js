@@ -56,6 +56,7 @@ const getConfig = () => {
 
   const search = getSearch();
   const config = {
+    unit: search.get('unit') ?? 'volume',
     sort: search.get('sort') ?? 'custom',
     title: search.get('title') ?? 'Fetish Fluids Report',
     link: search.get('link') ?? '',
@@ -107,7 +108,11 @@ const drawBeaker = (c, name, ml) => {
     t.setAttribute('y', 373 - volume + (i * c.textSize));
     t.setAttribute('x', 340);
     if (i === 0) {
-      t.innerHTML = `${ml.toFixed(2)} ml`;
+      if (c.unit === 'volume') {
+        t.innerHTML = `${ml.toFixed(2)} ml`;
+      } else {
+        t.innerHTML = `${(ml / MAX * 100).toFixed(2)}%`;
+      }
     } else {
       const word = split?.[i - 1];
       if (['\\', '-'].some(c => word?.startsWith(c))) t.dataset.customCase = true;
@@ -192,8 +197,11 @@ const updateConfig = (config) => {
   document.getElementById('color').value = config?.color;
   document.getElementById('zoom').value = config?.tileWidth;
   document.getElementById('text-zoom').value = config?.textSize;
-  document.querySelector('#dark > input').checked = config?.theme !== 'light';
-  document.querySelector('#light > input').checked = config?.theme == 'light';
+  document.getElementById('unit-type').value = config?.unit;
+  document.getElementById('theme').value = config?.theme;
+  document.getElementById('import').value = Object.entries(config.kinks).reduce((all, [k, v]) => {
+    return `${all}${v } ${k}\n`
+    }, '');
   document.title = `${config.author} - ${config.title}`;
   if (config.sort !== 'custom') {
     document.querySelector('#swap-jars').disabled = true;
@@ -201,7 +209,7 @@ const updateConfig = (config) => {
   document.getElementById('sort').value = config?.sort;
   document.getElementById('remove-jar').disabled = !Object.keys(config.kinks).length;
 
-  const edit = document.querySelector('details');
+  const edit = document.querySelector('#edit');
   edit.addEventListener('click', (e) => {
     const isEditing = !e.target.parentElement.parentElement.open;
     document.body.dataset.edit = isEditing;
@@ -247,11 +255,11 @@ const setupConfig = () => {
     updateHash('sort', e.target.value);
     sortKinks(e.target.value);
   })
-  document.querySelector('#dark > input').addEventListener('change', (e) => {
-    updateHash('theme', e.target.checked ? 'dark' : 'light');
+  document.querySelector('#unit-type').addEventListener('change', (e) => {
+    updateHash('unit', e.target.value);
   })
-  document.querySelector('#light > input').addEventListener('change', (e) => {
-    updateHash('theme', e.target.checked ? 'light' : 'dark');
+  document.querySelector('#theme').addEventListener('change', (e) => {
+    updateHash('theme', e.target.value);
   })
   document.getElementById('profile-address').addEventListener('blur', (e) => {
     updateHash('link', e.target.value);
@@ -352,7 +360,7 @@ const draw = () => {
 
   document.querySelector('h1').innerHTML = `${c.title} `;
   const totalMl = Object.values(kinks).reduce((total, cur) => total + cur, 0).toFixed(2);
-  total.innerHTML = `${totalMl} ml`;
+  total.innerHTML = c.unit === 'volume' ? `${totalMl} ml` : ``;
   document.querySelector('#author').innerHTML = c.author;
   document.querySelector('#author').href = c.link;
   document.querySelector('#date').innerHTML = (new Date()).toISOString().substring(0, 10);

@@ -81,26 +81,14 @@ footer {
   flex-flow: row wrap;
 }
 
-#config-options>label>*:first-child {
-  margin-top: 8px;
-}
-
-#config-options>label>select,
-#config-options>label>button {
-  margin-top: 8px;
-  padding: 5px 0;
-  flex: 1 0 calc(50% - 8px);
-  text-align: center;
+#import {
+  resize: none;
+  height: 100px;
 }
 
 #fetishes,
 #remove-jar {
   margin-right: 8px;
-}
-
-#fetishes {
-  width: 20px;
-  flex: 1 0 100%;
 }
 
 h1,
@@ -282,11 +270,6 @@ select {
   color: var(--fg);
 }
 
-#config-options label {
-  margin-top: 8px;
-  margin-bottom: 8px;
-}
-
 #config-options input {
   accent-color: var(--kink-color);
 }
@@ -362,54 +345,27 @@ select {
   }
 }
 
-#theme {
-  margin: 4px;
-  float: left;
+#config label {
   display: flex;
-  flex-flow: row nowrap !important;
+  flex-flow: row wrap;
 }
 
-#theme label {
-  float: left;
-  width: 50%;
-  background-color: #EFEFEF;
-  border-radius: 4px;
-  border: 1px solid #D0D0D0;
-  overflow: auto;
+.config-label {
+  margin-bottom: 8px;
+  flex: 1 0 100%;
+}
+
+#config label>* {
+  flex: 1 1 100%;
+  margin: 5px 0;
+}
+
+.row {
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+.row>* {
   flex: 1;
-}
-
-#theme label:first-child {
-  margin-right: 8px;
-}
-
-#theme label span {
-  text-align: center;
-  font-size: 30px;
-  padding: 5px 0px;
-  display: block;
-}
-
-#theme label input {
-  position: absolute;
-  display: none;
-}
-
-#theme input:checked+span {
-  background-color: var(--kink-color);
-  color: #F7F7F7;
-}
-
-#theme #dark {
-  background-color: #CCC;
-  color: #FFF;
-}
-
-#theme #light {
-  background-color: #FFF;
-  color: #CCC;
-}
-
-#config-options>label>* {
-  width: 100%;
+  min-width: 0;
 }
