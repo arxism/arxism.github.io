@@ -389,7 +389,8 @@ a {
   padding: 2px 2px 2px 0;
 }
 
-#edit:hover {
+#edit:hover,
+#capture:hover {
   background: var(--kink-color);
   border-color: var(--kink-color);
 }
