@@ -76,6 +76,10 @@ footer {
   position: relative;
 }
 
+#fetishes {
+  text-align: center;
+}
+
 #fetishes-label {
   display: flex;
   flex-flow: row wrap;

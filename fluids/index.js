@@ -56,12 +56,12 @@ const getConfig = () => {
 
   const search = getSearch();
   const config = {
-    unit: search.get('unit') ?? 'volume',
+    unit: search.get('unit') ?? 'percent',
     sort: search.get('sort') ?? 'custom',
-    title: search.get('title') ?? 'Fetish Fluids Report',
+    title: search.get('title') ?? 'Fetishes',
     link: search.get('link') ?? '',
     author: search.get('author') ?? '@SomoneOnFet',
-    color: search.get('color') ?? '#8833aa',
+    color: search.get('color') ?? '#23a100',
     theme: search.get('theme') ?? 'dark',
     tileWidth: search.get('tileSize') ?? 160,
     textSize: search.get('textSize') ?? 48,
@@ -78,7 +78,7 @@ const getConfig = () => {
 }
 const fill = (amount) => `m 43.7 ${413 - amount} l 0 ${amount} a 136.1 44.3 0 0 0 1.5 5.1 a 136.1 44.3 0 0 0 136.1 44.3 a 136.1 44.3 0 0 0 136.2 -44.3 l 0.5 -5.1 l 0 -${amount} l -0.7 0 a 136.2 40.6 0 0 1 -136 39.4 a 136.2 40.6 0 0 1 -135.9 -39.4 l -1.7 0 z`;
 
-const drawBeaker = (c, name, ml) => {
+const drawBeaker = (c, name, percent) => {
   const search = getSearch();
   const beaker = document.getElementById('beaker');
 
@@ -91,14 +91,14 @@ const drawBeaker = (c, name, ml) => {
     tile.dataset.selected = true;
   }
 
-  const volume = ml * 360 / MAX;
-  if (ml > 0) {
+  const volume = percent / 100 * 360;
+  if (percent > 0) {
     fillElement.setAttribute('d', fill(volume));
     tile.dataset.hot = false;
-    if (ml <= 100) tile.dataset.hot = 'cold';
-    if (ml > 500) tile.dataset.hot = 'warm';
-    if (ml > 750) tile.dataset.hot = true;
-    if (ml > 900) tile.dataset.hot = 'very';
+    if (percent <= 10) tile.dataset.hot = 'cold';
+    if (percent > 50) tile.dataset.hot = 'warm';
+    if (percent > 75) tile.dataset.hot = true;
+    if (percent > 90) tile.dataset.hot = 'very';
     topElement.setAttribute('cy', 417.8 - volume);
   }
   const split = name.split(' ');
@@ -109,9 +109,9 @@ const drawBeaker = (c, name, ml) => {
     t.setAttribute('x', 340);
     if (i === 0) {
       if (c.unit === 'volume') {
-        t.innerHTML = `${ml.toFixed(2)} ml`;
+        t.innerHTML = `${(percent * MAX / 100).toFixed(2)} ml`;
       } else {
-        t.innerHTML = `${(ml / MAX * 100).toFixed(2)}%`;
+        t.innerHTML = `${(percent).toFixed(2)}%`;
       }
     } else {
       const word = split?.[i - 1];
@@ -386,7 +386,7 @@ const draw = () => {
   });
 
   if (Object.keys(kinks).length === 0) {
-    const beaker = drawBeaker(c, 'Vanilla', MAX);
+    const beaker = drawBeaker(c, 'Vanilla', 100);
     empty.appendChild(beaker);
     document.querySelector('.tile').dataset.noKinks = true;
   }
@@ -399,7 +399,7 @@ const draw = () => {
         let percent = 1 - (e.clientY - rect.top) / rect.height;
         if (percent > 0.955) percent = 1;
         if (percent * MAX < 10) percent = 0;
-        updateHash('kink', `${t.parentElement.dataset.kink}:${(MAX * percent).toFixed(2)}`);
+        updateHash('kink', `${t.parentElement.dataset.kink}:${(percent * 100).toFixed(2)}`);
       }
     })
   })
