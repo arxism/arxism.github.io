@@ -276,6 +276,7 @@ select {
 
 #config-options {
   margin-top: 20px;
+  margin-bottom: 30px;
   display: flex;
   flex-flow: column;
   color: var(--fg);

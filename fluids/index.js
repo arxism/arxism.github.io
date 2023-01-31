@@ -54,12 +54,7 @@ const MAX = 1000;
 const getSearch = () => new URLSearchParams(window.location.hash.substring(1));
 const getConfig = () => {
 
-  let search = getSearch();
-  if (search.get('all') !== null) {
-    updateHash('all', null);
-    Object.entries(fetishes).forEach(([_, v]) => updateHash('kink', `${v}:0`))
-    search = getSearch();
-  }
+  const search = getSearch();
   const config = {
     sort: search.get('sort') ?? 'custom',
     title: search.get('title') ?? 'Fetish Fluids Report',
@@ -226,7 +221,7 @@ const updateConfig = (config) => {
     if (!isEditing) {
       delete document.body.dataset.mode;
       updateHash('selected', null);
-      main();
+      draw();
     }
   })
 
@@ -262,10 +257,11 @@ const setupConfig = () => {
     updateHash('link', e.target.value);
   })
   document.getElementById('remove-jar').addEventListener('click', (e) => {
+    draw();
+    updateConfig(getConfig());
     const jars = document.querySelector('#jars > .tile');
     if (document.body.dataset.mode === 'remove' && !jars?.length) {
       delete document.body.dataset.mode;
-      main();
     } else {
       document.body.dataset.mode = 'remove';
       document.querySelectorAll('.jar').forEach(jar => {
@@ -278,11 +274,13 @@ const setupConfig = () => {
     }
   })
   document.getElementById('swap-jars').addEventListener('click', (e) => {
+    draw();
+    updateConfig(getConfig());
     const jars = document.querySelector('#jars > .tile');
     if (document.body.dataset.mode === 'swap' && !jars?.length) {
       delete document.body.dataset.mode;
       updateHash('selected', null);
-      main();
+      draw();
     } else {
       document.querySelectorAll('.jar').forEach(jar => {
         document.body.dataset.mode = 'swap';
@@ -320,6 +318,8 @@ const setupConfig = () => {
   })
 
   document.querySelector('#add-jar').addEventListener('click', (e) => {
+    draw();
+    updateConfig(getConfig());
     const toAdd = document.getElementById('fetish-text').value?.trim();
     if (toAdd) {
       updateHash('kink', `${toAdd}:0`);
@@ -329,7 +329,7 @@ const setupConfig = () => {
   });
 }
 
-const main = () => {
+const draw = () => {
   const c = getConfig();
   // This was developed by Lord @Arx the Dominant
   // https://commons.wikimedia.org/wiki/File:Beakers.svg
@@ -384,13 +384,22 @@ const main = () => {
   })
 };
 
-main();
+if (getSearch().get('all') !== null) {
+  updateHash('all', null);
+  Object.entries(fetishes).forEach(([_, v]) => updateHash('kink', `${v}:0`))
+  const search = getSearch();
+  window.location.hash = `#${search.toString()}`;
+}
+
+draw();
 setupConfig();
 updateConfig(getConfig());
+
 if (!document.body.querySelectorAll('.tile').length) {
   document.querySelector('#edit').click();
 }
 window.addEventListener('hashchange', (e) => {
   sortKinks();
-  main();
+  updateConfig(getConfig());
+  draw();
 })
