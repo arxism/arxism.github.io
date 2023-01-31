@@ -61,7 +61,7 @@ const getConfig = () => {
     title: search.get('title') ?? 'Fetishes',
     link: search.get('link') ?? '',
     author: search.get('author') ?? '@SomoneOnFet',
-    color: search.get('color') ?? '#23a100',
+    color: search.get('color') ?? '#a10001',
     theme: search.get('theme') ?? 'dark',
     tileWidth: search.get('tileSize') ?? 160,
     textSize: search.get('textSize') ?? 48,
@@ -200,7 +200,7 @@ const updateConfig = (config) => {
   document.getElementById('unit-type').value = config?.unit;
   document.getElementById('theme').value = config?.theme;
   document.getElementById('data').value = Object.entries(config.kinks).reduce((all, [k, v]) => {
-    return `${all}${v } ${k}\n`
+    return `${all}${Math.min(Math.max(v, 0), 100)} ${k}\n`
     }, '');
   document.title = `${config.author} - ${config.title}`;
   if (config.sort !== 'custom') {
@@ -368,7 +368,7 @@ const draw = () => {
   jars.innerHTML = '';
   empty.innerHTML = '';
   const kinks = Object.fromEntries(
-    Object.entries(c.kinks).map(([name, ml]) => [name, Math.max(Math.min(ml, MAX), 0)])
+    Object.entries(c.kinks).map(([name, pc]) => [name, Math.max(Math.min(pc, 100), 0)])
   );
 
   document.querySelector('h1').innerHTML = `${c.title} `;
@@ -399,7 +399,7 @@ const draw = () => {
         let percent = 1 - (e.clientY - rect.top) / rect.height;
         if (percent > 0.955) percent = 1;
         if (percent * MAX < 10) percent = 0;
-        updateHash('kink', `${t.parentElement.dataset.kink}:${(percent * 100).toFixed(2)}`);
+        updateHash('kink', `${t.parentElement.dataset.kink}:${(Math.max(Math.min(100, percent * 100), 0)).toFixed(2)}`);
       }
     })
   })
