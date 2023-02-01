@@ -216,6 +216,9 @@ const updateConfig = (config) => {
   }
   document.getElementById('sort').value = config?.sort;
   document.getElementById('remove-jar').disabled = !Object.keys(config.kinks).length;
+  document.getElementById('paint-jar').disabled = !Object.keys(config.kinks).length;
+  document.getElementById('empty-jar').disabled = !Object.keys(config.kinks).length;
+  document.getElementById('swap-jars').disabled = Object.keys(config.kinks).length < 2;
 
   const edit = document.querySelector('#edit');
   const newEdit = edit.cloneNode(true);
