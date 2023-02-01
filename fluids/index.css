@@ -136,12 +136,23 @@ body {
   cursor: pointer;
 }
 
+body[data-mode="paint"] .tile .jar:hover {
+  outline: 3px solid var(--paint-color);
+}
+
+body[data-mode="empty"] .tile .jar:hover,
 body[data-mode="remove"] .tile .jar:hover,
 body[data-mode="swap"] .tile .jar:hover,
 body[data-mode="swap"] .tile[data-selected="true"] .jar {
   outline: 3px solid var(--kink-color);
 }
 
+body[data-mode="paint"] #paint-jar {
+  background-color: var(--paint-color);
+  border-color: var(--paint-color);
+}
+
+body[data-mode="empty"] #empty-jar,
 body[data-mode="remove"] #remove-jar,
 body[data-mode="swap"] #swap-jars {
   background-color: var(--kink-color);
@@ -218,7 +229,8 @@ footer {
 }
 
 #fetishes,
-#remove-jar {
+#remove-jar,
+#paint-jar {
   margin-right: 8px;
 }
 
@@ -366,7 +378,7 @@ a {
   overflow-y: auto;
   border-right: 1px solid var(--fg);
   border-radius: 0;
-  padding: 10px;
+  padding: 10px 14px 10px 10px;
   margin: 0;
   margin-right: 20px;
 }
@@ -416,7 +428,7 @@ select {
 #config[open] #edit {
   position: absolute;
   cursor: pointer;
-  right: 0;
+  right: 6px;
   top: 0;
 }
 
@@ -438,7 +450,7 @@ select {
 
 @media screen and (max-width: 700px) {
   body[data-edit="true"] {
-    flex-direction: column;
+    flex-direction: column-reverse;
     justify-content: flex-end;
     padding-bottom: 400px;
   }

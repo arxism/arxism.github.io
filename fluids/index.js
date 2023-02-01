@@ -57,6 +57,7 @@ const getConfig = () => {
 
   const search = getSearch();
   const config = {
+    paint: search.get('paint') ?? '#0000FF',
     unit: search.get('unit') ?? 'percent',
     sort: search.get('sort') ?? 'custom',
     title: search.get('title') ?? 'Fetishes',
@@ -67,8 +68,8 @@ const getConfig = () => {
     tileWidth: search.get('tileSize') ?? 160,
     textSize: search.get('textSize') ?? 48,
     kinks: search.getAll('kink')?.reduce((kinks, kink) => {
-      const [k, v] = kink.split(':');
-      return { ...kinks, [k]: v }
+      const [k, value, color] = kink.split(':');
+      return { ...kinks, [k]: { value, color } }
     },
       {}
     ),
@@ -79,7 +80,7 @@ const getConfig = () => {
 }
 const fill = (amount) => `m 43.7 ${413 - amount} l 0 ${amount} a 136.1 44.3 0 0 0 1.5 5.1 a 136.1 44.3 0 0 0 136.1 44.3 a 136.1 44.3 0 0 0 136.2 -44.3 l 0.5 -5.1 l 0 -${amount} l -0.7 0 a 136.2 40.6 0 0 1 -136 39.4 a 136.2 40.6 0 0 1 -135.9 -39.4 l -1.7 0 z`;
 
-const drawBeaker = (c, name, percent) => {
+const drawBeaker = (c, name, percent, color) => {
   const search = getSearch();
   const beaker = document.getElementById('beaker');
 
@@ -90,6 +91,11 @@ const drawBeaker = (c, name, percent) => {
   tile.dataset.kink = name;
   if (search.get('selected') === name) {
     tile.dataset.selected = true;
+  }
+
+  if (color) {
+    fillElement.style.fill = color;
+    topElement.style.fill = color;
   }
 
   const volume = percent / 100 * 360;
@@ -195,12 +201,13 @@ const updateHash = (k, v) => {
 }
 
 const updateConfig = (config) => {
+  document.getElementById('color-paint').value = config?.paint;
   document.getElementById('color').value = config?.color;
   document.getElementById('zoom').value = config?.tileWidth;
   document.getElementById('text-zoom').value = config?.textSize;
   document.getElementById('unit-type').value = config?.unit;
   document.getElementById('theme').value = config?.theme;
-  document.getElementById('data').value = Object.entries(config.kinks).reduce((all, [k, v]) => {
+  document.getElementById('data').value = Object.entries(config.kinks).reduce((all, [k, { value: v }]) => {
     return `${all}${Math.min(Math.max(v, 0), 100)} ${k}\n`
   }, '');
   document.title = `${config.author} - ${config.title}`;
@@ -240,7 +247,7 @@ const updateConfig = (config) => {
 
 const setupConfig = () => {
   document.getElementById('capture').addEventListener('click', (e) => {
-  const menu = document.getElementById('config');
+    const menu = document.getElementById('config');
     html2canvas(document.body, {
       windowWidth: 1920,
       ignoreElements: e => {
@@ -260,6 +267,9 @@ const setupConfig = () => {
     updateHash('color', e.target.value);
   })
 
+  document.getElementById('color-paint').addEventListener('change', (e) => {
+    updateHash('paint', e.target.value);
+  })
   document.getElementById('zoom').addEventListener('change', (e) => {
     updateHash('tileSize', e.target.value);
   })
@@ -292,7 +302,6 @@ const setupConfig = () => {
     const kinks = text.value.split('\n');
     search.delete('kink');
     window.location.hash = `#${search.toString()}`;
-    console.log(kinks);
     kinks.forEach(k => {
       const [v, ...rest] = k.split(' ');
       if (v && k) {
@@ -315,6 +324,43 @@ const setupConfig = () => {
         jar.addEventListener('click', (e) => {
           deleteKink(jar.parentElement.dataset.kink);
           window.setTimeout(() => document.getElementById('remove-jar').click(), 10);
+          delete document.body.dataset.mode;
+        })
+      })
+    }
+  })
+  document.getElementById('empty-jar').addEventListener('click', (e) => {
+    draw();
+    updateConfig(getConfig());
+    const jars = document.querySelector('#jars > .tile');
+    if (document.body.dataset.mode === 'empty' && !jars?.length) {
+      delete document.body.dataset.mode;
+    } else {
+      document.body.dataset.mode = 'empty';
+      document.querySelectorAll('.jar').forEach(jar => {
+        jar.addEventListener('click', (e) => {
+          updateHash('kink', `${jar.parentElement.dataset.kink}:0`);
+          window.setTimeout(() => document.getElementById('empty-jar').click(), 10);
+          delete document.body.dataset.mode;
+        })
+      })
+    }
+  })
+  document.getElementById('paint-jar').addEventListener('click', (e) => {
+    draw();
+    updateConfig(getConfig());
+    const config = getConfig();
+    const jars = document.querySelector('#jars > .tile');
+    if (document.body.dataset.mode === 'paint' && !jars?.length) {
+      delete document.body.dataset.mode;
+    } else {
+      document.body.dataset.mode = 'paint';
+      document.querySelectorAll('.jar').forEach(jar => {
+        jar.addEventListener('click', (e) => {
+          const name = jar.parentElement.dataset.kink;
+          const value = config.kinks[name]?.value;
+          updateHash('kink', `${name}:${value}:${config.paint}`);
+          window.setTimeout(() => document.getElementById('paint-jar').click(), 10);
           delete document.body.dataset.mode;
         })
       })
@@ -386,6 +432,7 @@ const draw = () => {
   const total = document.querySelector('h2');
   root.style.setProperty('--bg', c.theme === 'light' ? '#FFF' : '#232323');
   root.style.setProperty('--fg', c.theme === 'light' ? '#000' : '#FFF');
+  root.style.setProperty('--paint-color', c.paint);
   root.style.setProperty('--kink-color', c.color);
   root.style.setProperty('--tile-width', `${c.tileWidth}px`);
   root.style.setProperty('--text-size', `${c.textSize}px`);
@@ -394,11 +441,11 @@ const draw = () => {
   jars.innerHTML = '';
   empty.innerHTML = '';
   const kinks = Object.fromEntries(
-    Object.entries(c.kinks).map(([name, pc]) => [name, Math.max(Math.min(pc, 100), 0)])
+    Object.entries(c.kinks).map(([name, { value, color }]) => [name, { value: Math.max(Math.min(value, 100), 0), color }])
   );
 
   document.querySelector('h1').innerHTML = `${c.title} `;
-  const totalMl = Object.values(kinks).reduce((total, cur) => total + cur, 0).toFixed(2);
+  const totalMl = Object.values(kinks).reduce((total, { value: cur }) => total + cur, 0).toFixed(2);
   total.innerHTML = c.unit === 'volume' ? `${totalMl} ml` : ``;
   document.querySelector('#author').innerHTML = c.author;
   document.querySelector('#author').href = c.link;
@@ -406,8 +453,8 @@ const draw = () => {
   document.querySelector('h4').innerText = `\u0074\u0065\u006d\u0070\u006c\u0061\u0074\u0065 \u0062\u0079 `;
   document.querySelector('footer').innerHTML = c.note;
 
-  Object.entries(kinks).map(([name, ml]) => {
-    const clone = drawBeaker(c, name, ml);
+  Object.entries(kinks).map(([name, { value, color }]) => {
+    const clone = drawBeaker(c, name, value, color);
     jars.appendChild(clone);
   });
 
@@ -421,11 +468,14 @@ const draw = () => {
   Array.from(tiles).forEach(t => {
     t.addEventListener('click', (e) => {
       if (e.target.tagName !== 'button' && !document.body.dataset.mode) {
+        const c = getConfig();
         const rect = t.getBoundingClientRect();
         let percent = 1 - (e.clientY - rect.top) / rect.height;
         if (percent > 0.955) percent = 1;
         if (percent * MAX < 10) percent = 0;
-        updateHash('kink', `${t.parentElement.dataset.kink}:${(Math.max(Math.min(100, percent * 100), 0)).toFixed(2)}`);
+        const name =  t.parentElement.dataset.kink;
+        const paint = c.kinks[name]?.color;
+        updateHash('kink', `${name}:${(Math.max(Math.min(100, percent * 100), 0)).toFixed(2)}${paint ? `:${paint}`: ''}`);
       }
     })
   })
