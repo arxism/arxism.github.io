@@ -52,9 +52,15 @@ const fetishes = {
 };
 
 const MAX = 1000;
+const ALL_PRESETS = '_______add_all';
 const getSearch = () => new URLSearchParams(window.location.hash.substring(1));
+const addAll = () => {
+  updateHash('all', null);
+  Object.entries(fetishes).forEach(([_, v]) => updateHash('kink', `${v}:0`))
+  const search = getSearch();
+  window.location.hash = `#${search.toString()}`;
+}
 const getConfig = () => {
-
   const search = getSearch();
   const config = {
     paint: search.get('paint') ?? '#0000FF',
@@ -402,6 +408,12 @@ const setupConfig = () => {
   empty.value = "";
   empty.innerText = "Presets";
   document.getElementById('fetishes').appendChild(empty);
+
+  const all = document.createElement('option');
+  all.value = ALL_PRESETS;
+  all.innerText = "[ADD ALL]";
+  document.getElementById('fetishes').appendChild(all);
+
   Object.entries(fetishes).forEach(([k, v]) => {
     const option = document.createElement('option');
     option.value = v;
@@ -409,7 +421,11 @@ const setupConfig = () => {
     document.getElementById('fetishes').appendChild(option);
   })
   document.getElementById('fetishes').addEventListener('change', (e) => {
-    document.getElementById('fetish-text').value = e.target.value;
+    if (e.target.value === ALL_PRESETS) {
+      addAll();
+    } else {
+      document.getElementById('fetish-text').value = e.target.value;
+    }
     e.target.selectedIndex = 0;
   })
 
@@ -476,19 +492,16 @@ const draw = () => {
         let percent = 1 - (e.clientY - rect.top) / rect.height;
         if (percent > 0.955) percent = 1;
         if (percent * MAX < 10) percent = 0;
-        const name =  t.parentElement.dataset.kink;
+        const name = t.parentElement.dataset.kink;
         const paint = c.kinks[name]?.color;
-        updateHash('kink', `${name}:${(Math.max(Math.min(100, percent * 100), 0)).toFixed(2)}${paint ? `:${paint}`: ''}`);
+        updateHash('kink', `${name}:${(Math.max(Math.min(100, percent * 100), 0)).toFixed(2)}${paint ? `:${paint}` : ''}`);
       }
     })
   })
 };
 
 if (getSearch().get('all') !== null) {
-  updateHash('all', null);
-  Object.entries(fetishes).forEach(([_, v]) => updateHash('kink', `${v}:0`))
-  const search = getSearch();
-  window.location.hash = `#${search.toString()}`;
+  addAll();
 }
 
 draw();
