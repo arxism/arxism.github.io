@@ -1,4 +1,4 @@
-import '../node_modules/html-to-image/dist/html-to-image.js';
+import './html-to-image.js';
 const fetishes = {
   "Being Dominant": "Being Dominant",
   "Being submissive": "Being \\submissive",
