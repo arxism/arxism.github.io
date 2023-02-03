@@ -1,4 +1,5 @@
 import './html-to-image.js';
+import { Remarkable } from './remarkable.browser.js';
 const fetishes = {
   "Being Dominant": "Being Dominant",
   "Being submissive": "Being \\submissive",
@@ -53,6 +54,7 @@ const fetishes = {
 
 const MAX = 1000;
 const ALL_PRESETS = '_______add_all';
+const md = new Remarkable();
 const getSearch = () => new URLSearchParams(window.location.hash.substring(1));
 const addAll = () => {
   updateHash('all', null);
@@ -67,7 +69,6 @@ const getConfig = () => {
     unit: search.get('unit') ?? 'percent',
     sort: search.get('sort') ?? 'custom',
     title: search.get('title') ?? 'Fetishes',
-    link: search.get('link') ?? '',
     author: search.get('author') ?? '@SomoneOnFet',
     color: search.get('color') ?? '#a10001',
     theme: search.get('theme') ?? 'dark',
@@ -231,17 +232,21 @@ const updateConfig = (config) => {
   edit.parentNode.replaceChild(newEdit, edit);
   newEdit.addEventListener('click', (e) => {
     window.setTimeout(() => {
+      const c = getConfig();
       const isEditing = e.target.parentElement.parentElement.open;
       document.body.dataset.edit = isEditing;
       document.querySelector('#title').contentEditable = isEditing;
+      document.querySelector('#title').innerHTML = c.title;
       document.querySelector('#title').addEventListener('blur', (e) => {
         updateHash('title', e.target.innerText);
       });
-      document.querySelector('#author').contentEditable = isEditing;
-      document.querySelector('#author').addEventListener('blur', (e) => {
+      document.querySelector('#subtitle').contentEditable = isEditing;
+      document.querySelector('#subtitle').innerHTML = c.author;
+      document.querySelector('#subtitle').addEventListener('blur', (e) => {
         updateHash('author', e.target.innerText);
       });
       document.querySelector('footer').contentEditable = isEditing;
+      document.querySelector('footer').innerHTML = c.note;
       document.querySelector('footer').addEventListener('blur', (e) => {
         updateHash('note', e.target.innerText);
       });
@@ -258,7 +263,10 @@ const setupConfig = () => {
   document.getElementById('capture').addEventListener('click', (e) => {
     const menu = document.getElementById('config');
     htmlToImage.toPng(document.body, {
-      canvasWidth: 1800,
+      width: 1800,
+      style: {
+        width: '100%',
+      },
       filter: e => {
         if (['capture', 'edit'].some(s => e.id === s)) return false;
         if (menu.contains(e)) return false;
@@ -318,9 +326,6 @@ const setupConfig = () => {
         updateHash('kink', `${rest.join(' ')}:${v.replace(/[^0-9&.]/g, '')}`);
       }
     })
-  })
-  document.getElementById('profile-address').addEventListener('blur', (e) => {
-    updateHash('link', e.target.value);
   })
   document.getElementById('remove-jar').addEventListener('click', (e) => {
     draw();
@@ -444,6 +449,7 @@ const setupConfig = () => {
 
 const draw = () => {
   const c = getConfig();
+  const isEditing = document.body.dataset.edit === 'true';
   // This was developed by Lord @Arx the Dominant
   // https://commons.wikimedia.org/wiki/File:Beakers.svg
   // https://commons.wikimedia.org/wiki/File:Icon-bubbles-by-made-756174.svg
@@ -464,14 +470,13 @@ const draw = () => {
     Object.entries(c.kinks).map(([name, { value, color }]) => [name, { value: Math.max(Math.min(value, 100), 0), color }])
   );
 
-  document.querySelector('h1').innerHTML = `${c.title} `;
   const totalMl = Object.values(kinks).reduce((total, { value: cur }) => total + cur, 0).toFixed(2);
   total.innerHTML = c.unit === 'volume' ? `${totalMl} ml` : ``;
-  document.querySelector('#author').innerHTML = c.author;
-  document.querySelector('#author').href = c.link;
   document.querySelector('#date').innerHTML = (new Date()).toISOString().substring(0, 10);
   document.querySelector('h4').innerText = `\u0074\u0065\u006d\u0070\u006c\u0061\u0074\u0065 \u0062\u0079 `;
-  document.querySelector('footer').innerHTML = c.note;
+  document.querySelector('h1').innerHTML = isEditing ? `${c.title} ` : md.render(`${c.title} `);
+  document.querySelector('#subtitle').innerHTML = isEditing ? c.author : md.render(c.author);
+  document.querySelector('footer').innerHTML = isEditing ? c.note : md.render(c.note);
 
   Object.entries(kinks).map(([name, { value, color }]) => {
     const clone = drawBeaker(c, name, value, color);

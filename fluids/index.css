@@ -132,6 +132,11 @@ body {
   min-height: 100vh;
 }
 
+#title p,
+#subtitle p {
+  margin: 0;
+}
+
 #jars .tile .jar:hover {
   cursor: pointer;
 }
