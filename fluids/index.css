@@ -164,6 +164,10 @@ body[data-mode="swap"] #swap-jars {
   display: inline-block;
 }
 
+#main {
+  margin-left: 50px;
+}
+
 #main,
 #content {
   background: var(--bg);
@@ -303,7 +307,6 @@ a {
   display: 'flex';
   max-width: auto;
   width: var(--tile-width);
-  margin-right: 10px;
 }
 
 #fill-top {
@@ -366,6 +369,7 @@ a {
 
 #config summary {
   display: block;
+  position: absolute;
 }
 
 #config[open] {

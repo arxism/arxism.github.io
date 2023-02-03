@@ -1,4 +1,4 @@
-import html2canvas from './html2canvas.esm.js';
+import '../node_modules/html-to-image/dist/html-to-image.js';
 const fetishes = {
   "Being Dominant": "Being Dominant",
   "Being submissive": "Being \\submissive",
@@ -257,20 +257,21 @@ const updateConfig = (config) => {
 const setupConfig = () => {
   document.getElementById('capture').addEventListener('click', (e) => {
     const menu = document.getElementById('config');
-    html2canvas(document.body, {
-      windowWidth: 1920,
-      ignoreElements: e => {
-        if (['capture', 'edit'].some(s => e.id === s)) return true;
-        return menu.contains(e) && e.id !== 'config';
+    htmlToImage.toPng(document.body, {
+      canvasWidth: 1800,
+      filter: e => {
+        if (['capture', 'edit'].some(s => e.id === s)) return false;
+        if (menu.contains(e)) return false;
+        return true;
       }
-    }).then(canvas => {
+    }).then((dataURL) => {
       const { title, author } = getConfig();
       const link = document.createElement('a');
       const date = (new Date()).toISOString().substring(0, 10);
       link.download = `${author.replace('@', '')}.${title}.${date}.png`;
-      link.href = canvas.toDataURL();
+      link.href = dataURL;
       link.click();
-    });
+    })
   })
   document.getElementById('color').addEventListener('change', (e) => {
     updateHash('color', e.target.value);
