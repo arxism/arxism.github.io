@@ -1,0 +1,125 @@
+body {
+  margin: 0;
+  font-family: Lucida Grande, Lucida Sans, helvetica neue, helvetica, arial, sans-serif;
+  color: #ccc;
+  background-color: #1b1b1b;
+  line-height: 2em;
+}
+
+main {
+  margin: 0 100px;
+}
+
+@media screen and (max-width: 700px) {
+  main {
+    margin: 0 20px;
+  }
+}
+
+h2,
+h3,
+h4,
+a {
+  color: #c00;
+}
+
+#rect {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: baseline;
+}
+
+.bookmark>div {
+  text-decoration: none;
+  position: relative;
+  width: 100%;
+}
+
+ul {
+  display: inline;
+  padding: 0;
+}
+
+li {
+  list-style: none;
+}
+
+.bookmark {
+  display: flex;
+  width: 100%;
+  background: red;
+  color: white;
+  border: 2px solid #c00;
+  justify-content: flex-end;
+  background: none;
+  height: 250px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.rect {
+  font-family: monospace;
+  color: #ccc;
+}
+
+.bookmark>div>a {
+  z-index: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #c00;
+  padding: 10px;
+  margin-bottom: 20px;
+  white-space: nowrap;
+  font-family: inherit;
+  position: absolute;
+  color: #FFF;
+  text-decoration: underline;
+}
+
+.languages {
+  display: flex;
+  z-index: 1;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.languages a {
+  background: #c00;
+  border: none;
+  color: white;
+  padding: 10px;
+  margin: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+}
+
+.rect pre {
+  margin: 0;
+}
+
+.rect code {
+  opacity: 0.8;
+  display: block;
+  height: 250px;
+  overflow: scroll;
+  padding-top: 50px !important;
+}
+
+body[data-language="ts"] .languages>.js,
+body[data-language="js"] .languages>.ts {
+  background: #000 !important;
+  color: #FFF !important;
+}
+
+body[data-language="ts"] .code-js {
+  display: none;
+}
+
+body[data-language="js"] .code-ts {
+  display: none;
+}
