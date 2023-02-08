@@ -117,6 +117,7 @@ li {
   height: 250px;
   overflow: scroll;
   padding-top: 50px !important;
+  line-height: initial;
 }
 
 body[data-language="ts"] .languages>.js,
