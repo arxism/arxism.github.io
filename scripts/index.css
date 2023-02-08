@@ -23,6 +23,15 @@ a {
   color: #c00;
 }
 
+code.key {
+  background: #FFF;
+  color: #000;
+  padding: 8px;
+  margin: 5px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+
 #rect {
   display: flex;
   flex-flow: row nowrap;
