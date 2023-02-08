@@ -51,13 +51,13 @@ javascript: (function() {
       const voters = [...new Set(options.reduce((voters, option) => [...voters, ...option.voters], []))];
       const title = `─ ${votes} votes from ${voters.length} users ─`;
       const last = (_a = comments === null || comments === void 0 ? void 0 : comments.slice(-1)) === null || _a === void 0 ? void 0 : _a[0];
-      const lastCounted = `─ last seen https://fetlife.com${last.author.nickname}`;
+      const lastCounted = `─ last seen ${last.author.nickname}`;
       return [
         `${title.padEnd(l.all / 2, '-')}`,
         `${lastCounted.padStart(l.all / 2, '-')}`
       ]
         .join('')
-        .replace(last.author.nickname, `[${last.author.nickname}](${last.meta.path})`);
+        .replace(last.author.nickname, `[${last.author.nickname}](https://fetlife.com${last.meta.path})`);
     };
     const renderData = (options) => {
       const divmod = (t, b) => [t / b, t % b];

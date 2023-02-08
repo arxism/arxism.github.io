@@ -49,13 +49,13 @@ javascript: (function() {
       )];
       const title = `─ ${votes} votes from ${voters.length} users ─`;
       const last = comments?.slice(-1)?.[0];
-      const lastCounted = `─ last seen https://fetlife.com${last.author.nickname}`;
+      const lastCounted = `─ last seen ${last.author.nickname}`;
       return [
         `${title.padEnd(l.all / 2, '-')}`,
         `${lastCounted.padStart(l.all / 2, '-')}`
       ]
         .join('')
-        .replace(last.author.nickname, `[${last.author.nickname}](${last.meta.path})`);
+        .replace(last.author.nickname, `[${last.author.nickname}](https://fetlife.com${last.meta.path})`);
     }
 
     const renderData = (options: Option[]) => {
