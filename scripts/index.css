@@ -61,7 +61,7 @@ li {
   border: 2px solid #c00;
   justify-content: flex-end;
   background: none;
-  height: 250px;
+  height: 320px;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -116,7 +116,7 @@ li {
   display: block;
   height: 250px;
   overflow: scroll;
-  padding-top: 50px !important;
+  padding-top: 60px !important;
   line-height: initial;
 }
 
