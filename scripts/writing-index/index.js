@@ -12,6 +12,7 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
     const configString = `
     {\n
         "noCategories": false,\n
+        "noLevels": false,\n
         "categories": [\n
          ["Index", ["index"]],\n
          ["Erotica", ["erotica"]],\n
@@ -25,7 +26,6 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
         ],\n
         "order": ["Polls", "General", "FetLife", "Dominance / submission", "Poetry", "Satire / Parody", "Erotica", "Photography", "Misc"],\n
         "challenges": ["WBDC", "#"],\n
-        "noLevels": false,\n
         "levels": {\n
          "like": 25,\n
          "love": 50,\n
@@ -113,7 +113,7 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
         if (buttonText) {
             innerHTML += `<button style="${buttonStyle}" id="${eids.copy}">${buttonText}</button>`;
         }
-        innerHTML += `<button id="${eids.close}" style="${buttonStyle}">Close</button>`;
+        innerHTML += `<button id="${eids.close}" style="${buttonStyle}background: #000; color: #FFF;border: 1px solid #303030;">Close</button>`;
         dialog.innerHTML = innerHTML;
         const old = document.getElementById(eids.dialog);
         if (old) {
