@@ -32,12 +32,6 @@ code.key {
   white-space: nowrap;
 }
 
-#rect {
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: baseline;
-}
-
 .bookmark>div {
   text-decoration: none;
   position: relative;
@@ -69,6 +63,7 @@ li {
 .rect {
   font-family: monospace;
   color: #ccc;
+  margin-bottom: 30px;
 }
 
 .bookmark>div>a {
