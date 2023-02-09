@@ -1,32 +1,55 @@
 const _generateIndex = async () => {
-	const categories: [Category, string[]][] = [
-		['Index', ['index']],
-		['Erotica', ['erotica']],
-		['Photography', ['photography']],
-		['Satire / Parody', ['satire', 'parody']],
-		['Poetry', ['poetry', 'poem']],
-		['Dominance / submission', ['d-s', 'dominant', 'dominance', 'submission', 'dom', 'dominate', 'domination']],
-		['Polls', ['poll']],
-		['FetLife', ['fetlife']],
-		['General', ['writing', 'self-reflection']],
-	];
-	const order: Category[] = ['Polls', 'General', 'FetLife', 'Dominance / submission', 'Poetry', 'Satire / Parody', 'Erotica', 'Photography', 'Misc'];
-	const challenges = ['WBDC', '#'];
-	const tier = {
-		like: 25,
-		love: 50,
-		adore: 100,
-		fire: 250,
+	interface Config {
+		noLevels: boolean;
+		noCategories: boolean;
+		categories: [Category, string[]][];
+		order: Category[];
+		challenges: string[];
+		levels: {
+			like: number;
+			love: number;
+			adore: number;
+			fire: number;
+		}
 	}
-	const simple = false;
+
+	const configString = `
+    {\n
+        "noCategories": false,\n
+        "categories": [\n
+         ["Index", ["index"]],\n
+         ["Erotica", ["erotica"]],\n
+         ["Photography", ["photography"]],\n
+         ["Satire / Parody", ["satire", "parody"]],\n
+         ["Poetry", ["poetry", "poem"]],\n
+         ["Dominance / submission", ["d-s", "dominant", "dominance", "submission", "dom", "dominate", "domination"]],\n
+         ["Polls", ["poll"]],\n
+         ["FetLife", ["fetlife"]],\n
+         ["General", ["writing", "self-reflection"]]\n
+        ],\n
+        "order": ["Polls", "General", "FetLife", "Dominance / submission", "Poetry", "Satire / Parody", "Erotica", "Photography", "Misc"],\n
+        "challenges": ["WBDC", "#"],\n
+        "noLevels": false,\n
+        "levels": {\n
+         "like": 25,\n
+         "love": 50,\n
+         "adore": 100,\n
+         "fire": 250\n
+        }\n
+    }\n
+	`;
 
 	const eids = {
 		close: '_index-dialog-close',
 		dialog: '_index-dialog',
 		copy: '_index-dialog-copy',
-	}
+		config: '_index-dialog-config'
+	} as const;
+
+	let config = JSON.parse(configString) as Config;
 
 	const getChallengeLinks = (html: string) => {
+		const { challenges } = config;
 		const document = (new DOMParser()).parseFromString(html, "text/html");
 		const links: HTMLAnchorElement[] = Array.from(document.querySelectorAll('a'));
 		return links.map(
@@ -36,25 +59,27 @@ const _generateIndex = async () => {
 
 	const format = (writings: { [category: string]: string[] }, writing: Writing): { [category: string]: string[] } => {
 		const { attributes: { created_at: createdAt, comment_count: commentCount, title, path, tags, body, likes } } = writing;
+		const { noCategories, categories, noLevels, levels: { like, love, adore, fire } } = config;
 
 		const links = getChallengeLinks(body);
 		const tagNames = tags.map(t => t.slug);
 		const category: Category = categories.reduce((cat, [title, slugs]) => {
+			if (noCategories) return 'Misc';
 			if (cat !== 'Misc') return cat;
 			return tagNames.some(t => slugs.includes(t)) ? title : cat;
 		}, 'Misc' as Category);
 		const popularity = (() => {
 			let liked = '➖';
 			let chatty = '➖';
-			if (likes.total >= tier.like) liked = '♥️';
-			if (likes.total >= tier.love) liked = '❤️';
-			if (likes.total >= tier.adore) liked = '💝';
-			if (likes.total >= tier.fire) liked = '🔥';
-			if (commentCount >= tier.like) chatty = '💭';
-			if (commentCount >= tier.love) chatty = '💬';
-			if (commentCount >= tier.adore) chatty = '🗯️';
-			if (commentCount >= tier.fire) chatty = '🤯';
-			return simple ? '➖' : `${liked}${chatty} `;
+			if (likes.total >= like) liked = '♥️';
+			if (likes.total >= love) liked = '❤️';
+			if (likes.total >= adore) liked = '💝';
+			if (likes.total >= fire) liked = '🔥';
+			if (commentCount >= like) chatty = '💭';
+			if (commentCount >= love) chatty = '💬';
+			if (commentCount >= adore) chatty = '🗯️';
+			if (commentCount >= fire) chatty = '🤯';
+			return noLevels ? '➖' : `${liked}${chatty} `;
 		})();
 
 		return {
@@ -68,7 +93,7 @@ const _generateIndex = async () => {
 
 	const list = (writings: Writing[]) => {
 		const processed = writings.reduce(format, {});
-		const strings = order
+		const strings = config.order
 			.filter(category => processed?.[category]?.length)
 			.map(category => `### ${category}\n\n${(processed[category] ?? []).join('\n')}\n`);
 		return strings.join('\n');
@@ -85,13 +110,19 @@ const _generateIndex = async () => {
 		buttonText?: string;
 		buttonFn?: (e?: Event) => void,
 		text?: string;
+		showConfig?: boolean;
 	}
-	const renderDialog = ({ buttonText, buttonFn = () => { }, text }: RenderProps, open: boolean): HTMLDialogElement => {
+	const renderDialog = ({ showConfig, buttonText, buttonFn = () => { }, text }: RenderProps, open: boolean): HTMLDialogElement => {
 		const dialog = document.createElement('dialog');
 		dialog.setAttribute('id', eids.dialog)
 		dialog.setAttribute('style', "position: relative;background: #222;color: #fff;border: none;display: flex;flex-direction: column;padding: 20px;");
 		const buttonStyle = "border: none;background: #c00;color: #fff;padding: 10px;margin-top: 12px;"
 		let innerHTML = `${text}`
+		if (showConfig) {
+			innerHTML += `<details style="margin: 20px 0;width: 500px;"><summary>config</summary><pre contenteditable style="max-height: 50vh;overflow: auto;line-height: initial;" id="${eids.config}">
+			${configString.replaceAll('\n', '<br>').replaceAll(' ', '&nbsp;')}
+			</pre></details>`;
+		}
 		if (buttonText) {
 			innerHTML += `<button style="${buttonStyle}" id="${eids.copy}">${buttonText}</button>`;
 		}
@@ -144,10 +175,22 @@ const _generateIndex = async () => {
 
 	const writings = await getWritings();
 	const onCopy = () => {
+		let nextConfig = config;
+		try {
+			nextConfig = JSON.parse(document.getElementById(eids.config)?.innerHTML?.replaceAll('<br>', ' ').replaceAll('&nbsp;', ' ') ?? '') as Config;
+			config = nextConfig;
+		} catch (e) {
+			const dialog = document.getElementById(eids.dialog);
+			if (dialog) {
+      	renderDialog({ showConfig: true, text: `${writings.length} writings found`, buttonText: `Copy Index`, buttonFn: onCopy }, true)
+				alert('config error');
+			}
+			return;
+		}
 		navigator.clipboard.writeText(list(writings))
-		renderDialog({ text: `${writings.length} writings found`, buttonText: `Copied ✓` }, true)
+		renderDialog({ showConfig: true, text: `${writings.length} writings found`, buttonText: `Copied ✓`, buttonFn: onCopy }, true)
 	};
-	renderDialog({ text: `${writings.length} writings found`, buttonText: `Copy Index`, buttonFn: onCopy }, true)
+	renderDialog({ showConfig: true, text: `${writings.length} writings found`, buttonText: `Copy Index`, buttonFn: onCopy }, true)
 };
 
 _generateIndex();

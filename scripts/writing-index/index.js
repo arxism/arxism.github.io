@@ -9,32 +9,40 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
     var _a, _b;
-    const categories = [
-        ['Index', ['index']],
-        ['Erotica', ['erotica']],
-        ['Photography', ['photography']],
-        ['Satire / Parody', ['satire', 'parody']],
-        ['Poetry', ['poetry', 'poem']],
-        ['Dominance / submission', ['d-s', 'dominant', 'dominance', 'submission', 'dom', 'dominate', 'domination']],
-        ['Polls', ['poll']],
-        ['FetLife', ['fetlife']],
-        ['General', ['writing', 'self-reflection']],
-    ];
-    const order = ['Polls', 'General', 'FetLife', 'Dominance / submission', 'Poetry', 'Satire / Parody', 'Erotica', 'Photography', 'Misc'];
-    const challenges = ['WBDC', '#'];
-    const tier = {
-        like: 25,
-        love: 50,
-        adore: 100,
-        fire: 250,
-    };
-    const simple = false;
+    const configString = `
+    {\n
+        "noCategories": false,\n
+        "categories": [\n
+         ["Index", ["index"]],\n
+         ["Erotica", ["erotica"]],\n
+         ["Photography", ["photography"]],\n
+         ["Satire / Parody", ["satire", "parody"]],\n
+         ["Poetry", ["poetry", "poem"]],\n
+         ["Dominance / submission", ["d-s", "dominant", "dominance", "submission", "dom", "dominate", "domination"]],\n
+         ["Polls", ["poll"]],\n
+         ["FetLife", ["fetlife"]],\n
+         ["General", ["writing", "self-reflection"]]\n
+        ],\n
+        "order": ["Polls", "General", "FetLife", "Dominance / submission", "Poetry", "Satire / Parody", "Erotica", "Photography", "Misc"],\n
+        "challenges": ["WBDC", "#"],\n
+        "noLevels": false,\n
+        "levels": {\n
+         "like": 25,\n
+         "love": 50,\n
+         "adore": 100,\n
+         "fire": 250\n
+        }\n
+    }\n
+	`;
     const eids = {
         close: '_index-dialog-close',
         dialog: '_index-dialog',
         copy: '_index-dialog-copy',
+        config: '_index-dialog-config'
     };
+    let config = JSON.parse(configString);
     const getChallengeLinks = (html) => {
+        const { challenges } = config;
         const document = (new DOMParser()).parseFromString(html, "text/html");
         const links = Array.from(document.querySelectorAll('a'));
         return links.map(l => challenges.some(p => l.innerHTML.trim().startsWith(p)) ? `*[${l.innerHTML}](${l.href})*` : '').filter(a => a);
@@ -42,9 +50,12 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
     const format = (writings, writing) => {
         var _a;
         const { attributes: { created_at: createdAt, comment_count: commentCount, title, path, tags, body, likes } } = writing;
+        const { noCategories, categories, noLevels, levels: { like, love, adore, fire } } = config;
         const links = getChallengeLinks(body);
         const tagNames = tags.map(t => t.slug);
         const category = categories.reduce((cat, [title, slugs]) => {
+            if (noCategories)
+                return 'Misc';
             if (cat !== 'Misc')
                 return cat;
             return tagNames.some(t => slugs.includes(t)) ? title : cat;
@@ -52,23 +63,23 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
         const popularity = (() => {
             let liked = '➖';
             let chatty = '➖';
-            if (likes.total >= tier.like)
+            if (likes.total >= like)
                 liked = '♥️';
-            if (likes.total >= tier.love)
+            if (likes.total >= love)
                 liked = '❤️';
-            if (likes.total >= tier.adore)
+            if (likes.total >= adore)
                 liked = '💝';
-            if (likes.total >= tier.fire)
+            if (likes.total >= fire)
                 liked = '🔥';
-            if (commentCount >= tier.like)
+            if (commentCount >= like)
                 chatty = '💭';
-            if (commentCount >= tier.love)
+            if (commentCount >= love)
                 chatty = '💬';
-            if (commentCount >= tier.adore)
+            if (commentCount >= adore)
                 chatty = '🗯️';
-            if (commentCount >= tier.fire)
+            if (commentCount >= fire)
                 chatty = '🤯';
-            return simple ? '➖' : `${liked}${chatty} `;
+            return noLevels ? '➖' : `${liked}${chatty} `;
         })();
         return Object.assign(Object.assign({}, writings), { [category]: [
                 ...((_a = writings[category]) !== null && _a !== void 0 ? _a : []),
@@ -77,7 +88,7 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
     };
     const list = (writings) => {
         const processed = writings.reduce(format, {});
-        const strings = order
+        const strings = config.order
             .filter(category => { var _a; return (_a = processed === null || processed === void 0 ? void 0 : processed[category]) === null || _a === void 0 ? void 0 : _a.length; })
             .map(category => { var _a; return `### ${category}\n\n${((_a = processed[category]) !== null && _a !== void 0 ? _a : []).join('\n')}\n`; });
         return strings.join('\n');
@@ -87,13 +98,18 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
     const [userId] = (_b = (_a = URL_REG.exec(window.location.href)) === null || _a === void 0 ? void 0 : _a.slice(1)) !== null && _b !== void 0 ? _b : [];
     if (!userId)
         return log('Not on user page');
-    const renderDialog = ({ buttonText, buttonFn = () => { }, text }, open) => {
+    const renderDialog = ({ showConfig, buttonText, buttonFn = () => { }, text }, open) => {
         var _a, _b;
         const dialog = document.createElement('dialog');
         dialog.setAttribute('id', eids.dialog);
         dialog.setAttribute('style', "position: relative;background: #222;color: #fff;border: none;display: flex;flex-direction: column;padding: 20px;");
         const buttonStyle = "border: none;background: #c00;color: #fff;padding: 10px;margin-top: 12px;";
         let innerHTML = `${text}`;
+        if (showConfig) {
+            innerHTML += `<details style="margin: 20px 0;width: 500px;"><summary>config</summary><pre contenteditable style="max-height: 50vh;overflow: auto;line-height: initial;" id="${eids.config}">
+			${configString.replaceAll('\n', '<br>').replaceAll(' ', '&nbsp;')}
+			</pre></details>`;
+        }
         if (buttonText) {
             innerHTML += `<button style="${buttonStyle}" id="${eids.copy}">${buttonText}</button>`;
         }
@@ -142,9 +158,23 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
     });
     const writings = yield getWritings();
     const onCopy = () => {
+        var _a, _b, _c;
+        let nextConfig = config;
+        try {
+            nextConfig = JSON.parse((_c = (_b = (_a = document.getElementById(eids.config)) === null || _a === void 0 ? void 0 : _a.innerHTML) === null || _b === void 0 ? void 0 : _b.replaceAll('<br>', ' ').replaceAll('&nbsp;', ' ')) !== null && _c !== void 0 ? _c : '');
+            config = nextConfig;
+        }
+        catch (e) {
+            const dialog = document.getElementById(eids.dialog);
+            if (dialog) {
+                renderDialog({ showConfig: true, text: `${writings.length} writings found`, buttonText: `Copy Index`, buttonFn: onCopy }, true);
+                alert('config error');
+            }
+            return;
+        }
         navigator.clipboard.writeText(list(writings));
-        renderDialog({ text: `${writings.length} writings found`, buttonText: `Copied ✓` }, true);
+        renderDialog({ showConfig: true, text: `${writings.length} writings found`, buttonText: `Copied ✓`, buttonFn: onCopy }, true);
     };
-    renderDialog({ text: `${writings.length} writings found`, buttonText: `Copy Index`, buttonFn: onCopy }, true);
+    renderDialog({ showConfig: true, text: `${writings.length} writings found`, buttonText: `Copy Index`, buttonFn: onCopy }, true);
 });
 _generateIndex();
