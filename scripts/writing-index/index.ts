@@ -90,9 +90,9 @@ const _generateIndex = async () => {
 
 const configString = `
 {\n
-  "legend": true,\n
-  "noCategories": false,\n
-  "noLevels": false,\n
+  "showLegend": true,\n
+  "showCategories": false,\n
+  "showCounts": true,\n
   "categories": [\n
     ["Index", ["index"]],\n
     ["Erotica", ["erotica"]],\n
@@ -104,38 +104,38 @@ const configString = `
     ["FetLife", ["fetlife"]],\n
     ["General", ["writing", "self-reflection"]]\n
   ],\n
-  "order": ["Polls", "General", "FetLife", "Dominance / submission", "Poetry", "Satire / Parody", "Erotica", "Photography", "Misc"],\n
-  "challenges": ["WBDC", "#"],\n
-  "levels": {\n
+  "categoryOrder": ["Polls", "General", "FetLife", "Dominance / submission", "Poetry", "Satire / Parody", "Erotica", "Photography", "Misc"],\n
+  "hashtags": ["WBDC", "#"],\n
+  "counts": {\n
     "like": 25,\n
     "love": 50,\n
     "adore": 100,\n
     "fire": 250\n
    },\n
-  "escape": false\n
+  "escapeOutput": false\n
 }\n`;
 
 	let config = JSON.parse(configString) as Config;
 	let writings = [] as Writing[];
 
 	const getChallengeLinks = (html: string) => {
-		const { challenges } = config;
+		const { hashtags } = config;
 		const document = (new DOMParser()).parseFromString(html, "text/html");
 		const links: HTMLAnchorElement[] = Array.from(document.querySelectorAll('a'));
-		const e = config.escape ? '\\' : '';
+		const e = config.escapeOutput ? '\\' : '';
 		return links.map(
-			l => challenges.some(p => l.innerHTML.trim().startsWith(p)) ? `${e}*${e}[${l.innerHTML}](${l.href})${e}*` : ''
+			l => hashtags.some(p => l.innerHTML.trim().startsWith(p)) ? `${e}*${e}[${l.innerHTML}](${l.href})${e}*` : ''
 		).filter(a => a);
 	}
 
 	const format = (writings: { [category: string]: string[] }, writing: Writing): { [category: string]: string[] } => {
 		const { attributes: { created_at: createdAt, comment_count: commentCount, title, path, tags, body, likes } } = writing;
-		const { escape, noCategories, categories, noLevels, levels: { like, love, adore, fire } } = config;
+		const { escapeOutput, showCategories, categories, showCounts, counts: { like, love, adore, fire } } = config;
 
 		const links = getChallengeLinks(body);
 		const tagNames = tags.map(t => t.slug);
 		const category: Category = categories.reduce((cat, [title, slugs]) => {
-			if (noCategories) return 'Misc';
+			if (!showCategories) return 'Misc';
 			if (cat !== 'Misc') return cat;
 			return tagNames.some(t => slugs.includes(t)) ? title : cat;
 		}, 'Misc' as Category);
@@ -150,9 +150,9 @@ const configString = `
 			if (commentCount >= love) chatty = '💬';
 			if (commentCount >= adore) chatty = '🗯️';
 			if (commentCount >= fire) chatty = '🤯';
-			return noLevels ? '➖' : `${liked}${chatty} `;
+			return showCounts ? `${liked}${chatty}` : '➖';
 		})();
-		const e = escape ? '\\' : '';
+		const e = escapeOutput ? '\\' : '';
 
 		return {
 			...writings,
@@ -164,8 +164,8 @@ const configString = `
 	}
 
 	const legend = () => {
-		const { like, love, adore, fire } = config.levels;
-		const e = config.escape ? '\\' : '';
+		const { like, love, adore, fire } = config.counts;
+		const e = config.escapeOutput ? '\\' : '';
 		return `${e}#### Legend\n
 \n
 ${e}* ♥️ 💭 > ${like} loves / comments\n
@@ -176,11 +176,11 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`
 
 	const list = () => {
 		const processed = writings.reduce(format, {});
-		const e = config.escape ? '\\' : '';
-		const cats = config.order
+		const e = config.escapeOutput ? '\\' : '';
+		const cats = config.categoryOrder
 			.filter(category => processed?.[category]?.length)
 			.map(category => `${e}### ${category}\n\n${(processed[category] ?? []).join('\n')}\n`);
-		const strings = config.legend ? [legend(), ...cats] : cats;
+		const strings = config.showLegend ? [legend(), ...cats] : cats;
 		return strings.join('\n');
 	}
 	const log = (msg: string) => alert(`FL WRITING INDEX: ${msg}`);
@@ -276,14 +276,14 @@ _generateIndex();
 // Types
 
 interface Config {
-	legend: boolean;
-	noLevels: boolean;
-	noCategories: boolean;
+	showLegend: boolean;
+	showCounts: boolean;
+	showCategories: boolean;
 	categories: [Category, string[]][];
-	order: Category[];
-	challenges: string[];
-	escape: boolean;
-	levels: {
+	categoryOrder: Category[];
+	hashtags: string[];
+	escapeOutput: boolean;
+	counts: {
 		like: number;
 		love: number;
 		adore: number;

@@ -90,9 +90,9 @@ li {
 }
 
 .languages a {
-  background: #c00;
+  background: #000;
   border: none;
-  color: white;
+  color: #FFF;
   padding: 10px;
   margin: 10px;
   display: flex;
@@ -104,6 +104,7 @@ li {
 
 .rect pre {
   margin: 0;
+  display: none;
 }
 
 .rect code {
@@ -115,16 +116,18 @@ li {
   line-height: initial;
 }
 
-body[data-language="ts"] .languages>.js,
-body[data-language="js"] .languages>.ts {
-  background: #000 !important;
-  color: #FFF !important;
+.code-md>code {
+  line-height: 1.8;
 }
 
-body[data-language="ts"] .code-js {
-  display: none;
+body[data-language="ts"] .languages>.ts,
+body[data-language="js"] .languages>.js,
+body[data-language="md"] .languages>.md {
+  background: #c00;
 }
 
-body[data-language="js"] .code-ts {
-  display: none;
+body[data-language="js"] .code-js,
+body[data-language="md"] .code-md,
+body[data-language="ts"] .code-ts {
+  display: block;
 }

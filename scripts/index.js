@@ -1,7 +1,6 @@
 const scripts = ['poll', 'writing-index'];
 
 const loadScript = (name) => {
-
   const wrap = code => `javascript: (function() {\n${code}\n})()`;
   const js = new XMLHttpRequest();
   js.open('GET', `./${name}/index.js`);
@@ -23,6 +22,16 @@ const loadScript = (name) => {
     hljs.highlightAll();
   }
   ts.send();
+
+
+  const md = new XMLHttpRequest();
+  md.open('GET', `./${name}/index.md`);
+  md.onreadystatechange = function() {
+    const pre = document.querySelector(`#${name} pre.code-md > code`);
+    pre.innerHTML = md.responseText;
+    hljs.highlightAll();
+  }
+  md.send();
 }
 
 scripts.forEach(loadScript);
@@ -30,3 +39,5 @@ scripts.forEach(loadScript);
 addEventListener('hashchange', () => {
   document.body.dataset.language = window.location.hash.slice(1);
 })
+
+document.body.dataset.language = window.location.hash.slice(1) || 'md';
