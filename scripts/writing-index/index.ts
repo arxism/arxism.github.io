@@ -1,52 +1,122 @@
 const _generateIndex = async () => {
-	interface Config {
-		noLevels: boolean;
-		noCategories: boolean;
-		categories: [Category, string[]][];
-		order: Category[];
-		challenges: string[];
-		levels: {
-			like: number;
-			love: number;
-			adore: number;
-			fire: number;
-		}
-	}
-
-	const configString = `
-    {\n
-        "noCategories": false,\n
-        "noLevels": false,\n
-        "categories": [\n
-         ["Index", ["index"]],\n
-         ["Erotica", ["erotica"]],\n
-         ["Photography", ["photography"]],\n
-         ["Satire / Parody", ["satire", "parody"]],\n
-         ["Poetry", ["poetry", "poem"]],\n
-         ["Dominance / submission", ["d-s", "dominant", "dominance", "submission", "dom", "dominate", "domination"]],\n
-         ["Polls", ["poll"]],\n
-         ["FetLife", ["fetlife"]],\n
-         ["General", ["writing", "self-reflection"]]\n
-        ],\n
-        "order": ["Polls", "General", "FetLife", "Dominance / submission", "Poetry", "Satire / Parody", "Erotica", "Photography", "Misc"],\n
-        "challenges": ["WBDC", "#"],\n
-        "levels": {\n
-         "like": 25,\n
-         "love": 50,\n
-         "adore": 100,\n
-         "fire": 250\n
-        }\n
-    }\n
-	`;
-
+	const slug = '_index-dialog' as const;
 	const eids = {
-		close: '_index-dialog-close',
-		dialog: '_index-dialog',
-		copy: '_index-dialog-copy',
-		config: '_index-dialog-config'
+		template: `${slug}-template`,
+		close: `${slug}-close`,
+		dialog: `${slug}`,
+		copy: `${slug}-copy`,
+		config: `${slug}-config`,
+		preview: `${slug}-preview`,
+		panes: `${slug}-panes`,
+		meta: `${slug}-meta`,
+		status: `${slug}-status`,
 	} as const;
 
+	const styles = `\
+<style>
+  #${eids.dialog} {
+    max-width: 75vw;
+    background: #222;
+    color: #fff;
+    border: none;
+    padding: 20px;
+  }
+  #${eids.panes} {
+    position: relative;
+    display: flex;
+    flex-flow: row nowrap;
+  }
+  #${eids.status} {
+    flex: 1 0 50%;
+  }
+  #${eids.meta} {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 12px;
+    display: flex;
+    flex-flow: column;
+  }
+  #${eids.meta}>* {
+    margin: 4px 0;
+  }
+  #${eids.meta}>button {
+    color: #fff;
+    padding: 10px;
+  }
+  #${eids.copy} {
+    background: #c00;
+    border: none;
+  }
+  #${eids.close} {
+    background: #222;
+    border: 1px solid #444;
+  }
+  #${eids.dialog}[data-error="true"] #${eids.config} {
+    border: 2px solid red;
+  }
+  #${eids.config} {
+    margin-right: 10px;
+    flex: 0 0 calc(50% - 10px);
+  }
+  #${eids.preview} {
+    flex: 0 0 50%;
+  }
+  #${eids.dialog} pre {
+    overflow: auto;
+    background: #555;
+    max-height: 70vh;
+  }
+</style>`;
+
+	const dialogString = `
+  <template id="${eids.template}">
+	  <dialog id="${eids.dialog}">
+	    <div id="${eids.panes}">
+	      <pre id="${eids.config}" contenteditable>
+	      </pre>
+	      <pre id="${eids.preview}">
+	      </pre>
+  	    <div id="${eids.meta}">
+    	    <div id="${eids.status}"></div>
+  	      <button id="${eids.copy}">Copy</button>
+  	      <button id="${eids.close}">Close</button>
+  	    </div>
+	    </div>
+	  </dialog>
+	</template>
+	`;
+
+	const configString = `
+{\n
+	  "legend": true,\n
+    "noCategories": false,\n
+    "noLevels": false,\n
+    "categories": [\n
+     ["Index", ["index"]],\n
+     ["Erotica", ["erotica"]],\n
+     ["Photography", ["photography"]],\n
+     ["Satire / Parody", ["satire", "parody"]],\n
+     ["Poetry", ["poetry", "poem"]],\n
+     ["Dominance / submission", ["d-s", "dominant", "dominance", "submission", "dom", "dominate", "domination"]],\n
+     ["Polls", ["poll"]],\n
+     ["FetLife", ["fetlife"]],\n
+     ["General", ["writing", "self-reflection"]]\n
+    ],\n
+    "order": ["Polls", "General", "FetLife", "Dominance / submission", "Poetry", "Satire / Parody", "Erotica", "Photography", "Misc"],\n
+    "challenges": ["WBDC", "#"],\n
+    "levels": {\n
+     "like": 25,\n
+     "love": 50,\n
+     "adore": 100,\n
+     "fire": 250\n
+    }\n
+}\n
+	`;
+
 	let config = JSON.parse(configString) as Config;
+	let writings = [] as Writing[];
 
 	const getChallengeLinks = (html: string) => {
 		const { challenges } = config;
@@ -91,64 +161,29 @@ const _generateIndex = async () => {
 		};
 	}
 
-	const list = (writings: Writing[]) => {
+	const legend = () => {
+		const { like, love, adore, fire } = config.levels;
+		return `\
+#### Legend\n
+\n
+* ♥️ 💭 > ${like} loves / comments\n
+* ❤️ 💬 > ${love} loves / comments\n
+* 💝 🗯️ > ${adore} loves / comments\n
+* 🔥 🤯 > ${fire} loves / comments\n`
+	};
+
+	const list = () => {
 		const processed = writings.reduce(format, {});
-		const strings = config.order
+		const cats = config.order
 			.filter(category => processed?.[category]?.length)
 			.map(category => `### ${category}\n\n${(processed[category] ?? []).join('\n')}\n`);
+		const strings = config.legend ? [legend(), ...cats] : cats;
 		return strings.join('\n');
 	}
-
 	const log = (msg: string) => alert(`FL WRITING INDEX: ${msg}`);
-
 	const URL_REG = /https:\/\/fetlife.com\/users\/(\d+)(.*)?/
-
-	const [userId] = URL_REG.exec(window.location.href)?.slice(1) ?? [];
-	if (!userId) return log('Not on user page');
-
-	interface RenderProps {
-		buttonText?: string;
-		buttonFn?: (e?: Event) => void,
-		text?: string;
-		showConfig?: boolean;
-	}
-	const renderDialog = ({ showConfig, buttonText, buttonFn = () => { }, text }: RenderProps, open: boolean): HTMLDialogElement => {
-		const dialog = document.createElement('dialog');
-		dialog.setAttribute('id', eids.dialog)
-		dialog.setAttribute('style', "position: relative;background: #222;color: #fff;border: none;display: flex;flex-direction: column;padding: 20px;");
-		const buttonStyle = "border: none;background: #c00;color: #fff;padding: 10px;margin-top: 12px;"
-		let innerHTML = `${text}`
-		if (showConfig) {
-			innerHTML += `<details style="margin: 20px 0;width: 500px;"><summary>config</summary><pre contenteditable style="max-height: 50vh;overflow: auto;line-height: initial;" id="${eids.config}">
-			${configString.replaceAll('\n', '<br>').replaceAll(' ', '&nbsp;')}
-			</pre></details>`;
-		}
-		if (buttonText) {
-			innerHTML += `<button style="${buttonStyle}" id="${eids.copy}">${buttonText}</button>`;
-		}
-		innerHTML += `<button id="${eids.close}" style="${buttonStyle}background: #000; color: #FFF;border: 1px solid #303030;">Close</button>`;
-		dialog.innerHTML = innerHTML;
-
-		const old = document.getElementById(eids.dialog);
-		if (old) {
-			document.body.replaceChild(dialog, old);
-		} else {
-			document.body.appendChild(dialog);
-		}
-
-		document.getElementById(eids.copy)?.addEventListener('click', buttonFn);
-		document.getElementById(eids.close)?.addEventListener('click', () => dialog.close());
-		if (open) {
-			dialog.showModal();
-		} else {
-			dialog.close();
-		}
-
-		return dialog;
-	}
-
 	const perPage = 7;
-	const getWritings = async (marker?: string, i?: number): Promise<Writing[]> => {
+	const getWritings = async (userId: string, marker?: string, i?: number): Promise<Writing[]> => {
 		const writingsResp = await fetch(`https://fetlife.com/users/${userId}/activity/writings?per_page=${perPage}${marker ? `&marker=${marker}` : ''}`, {
 			"credentials": "include",
 			"headers": {
@@ -168,34 +203,89 @@ const _generateIndex = async () => {
 		const { stories, no_more: noMore, marker: nextMarker } = json;
 		console.log(`waiting ${nextMarker}`);
 
-		const dialog = renderDialog({ text: `getting writings... ${perPage * (i ?? 0)}` }, true);
+		const dialog = document.getElementById(eids.dialog) as HTMLDialogElement;
+		document.querySelector(`#${eids.status}`)!.innerHTML = `getting writings... ${perPage * (i ?? 0)}`;
 		await new Promise(resolve => setTimeout(resolve, 1500));
-		return (noMore || !nextMarker || !dialog.open) ? stories : [...stories, ...(await getWritings(nextMarker, (i ?? 0) + 1))];
+		return (noMore || !nextMarker || !dialog?.open) ? stories : [...stories, ...(await getWritings(userId, nextMarker, (i ?? 0) + 1))];
 	};
 
-	const writings = await getWritings();
-	const onCopy = () => {
-		let nextConfig = config;
+	const updateConfig = () => {
+		let next = config;
+		document.querySelector(`#${eids.copy}`)!.innerHTML = `Copy Index`;
 		try {
-			nextConfig = JSON.parse(document.getElementById(eids.config)?.innerHTML?.replaceAll('<br>', ' ').replaceAll('&nbsp;', ' ') ?? '') as Config;
-			config = nextConfig;
+			next = JSON.parse(document.getElementById(eids.config)?.innerHTML?.replaceAll('<br>', ' ').replaceAll('&nbsp;', ' ') ?? '') as Config;
+			config = next;
+			(document.querySelector(`#${eids.dialog}`)! as HTMLDialogElement).dataset.error = 'false';
 		} catch (e) {
-			const dialog = document.getElementById(eids.dialog);
-			if (dialog) {
-      	renderDialog({ showConfig: true, text: `${writings.length} writings found`, buttonText: `Copy Index`, buttonFn: onCopy }, true)
-				alert('config error');
-			}
-			return;
+			(document.querySelector(`#${eids.dialog}`)! as HTMLDialogElement).dataset.error = 'true';
 		}
-		navigator.clipboard.writeText(list(writings))
-		renderDialog({ showConfig: true, text: `${writings.length} writings found`, buttonText: `Copied ✓`, buttonFn: onCopy }, true)
 	};
-	renderDialog({ showConfig: true, text: `${writings.length} writings found`, buttonText: `Copy Index`, buttonFn: onCopy }, true)
+
+	const updatePreview = () => {
+		document.getElementById(eids.preview)!.innerHTML = list().replaceAll('\n', '<br>').replaceAll(' ', '&nbsp;');
+	}
+
+	const onCopy = (writings: Writing[]) => {
+		navigator.clipboard.writeText(list())
+		document.querySelector(`#${eids.copy}`)!.innerHTML = `Copied ✓`;
+	};
+
+	const renderDialog = () => {
+		document.body.innerHTML += dialogString;
+		document.head.innerHTML += styles;
+		const template = document.getElementById(eids.template) as HTMLTemplateElement;
+		const dialog = template.content.cloneNode(true) as HTMLDialogElement;
+
+		dialog.querySelector(`#${eids.config}`)!.innerHTML = configString.replaceAll('\n', '<br>').replaceAll(' ', '&nbsp;');
+		dialog.querySelector(`#${eids.config}`)!.addEventListener('blur', () => {
+			updateConfig();
+			updatePreview();
+		});
+		dialog.querySelector(`#${eids.copy}`)!.innerHTML = `Copy Index`;
+		dialog.querySelector(`#${eids.close}`)?.addEventListener('click', () => {
+			const d = document.getElementById(eids.dialog);
+			if (d) document.body.removeChild(d);
+		});
+
+		document.body.appendChild(dialog);
+		updatePreview();
+	}
+
+
+	const main = async () => {
+		const [userId] = URL_REG.exec(window.location.href)?.slice(1) ?? [];
+		if (!userId) return log('Not on user page');
+
+		renderDialog();
+		(document.getElementById(eids.dialog) as HTMLDialogElement).showModal();
+
+		writings = await getWritings(userId);
+		updatePreview();
+		document.getElementById(eids.status)!.innerHTML = `${writings.length} writings found`;
+		document.getElementById(eids.copy)!.addEventListener('click', () => onCopy(writings));
+	};
+
+	main();
 };
 
 _generateIndex();
 
 // Types
+
+interface Config {
+	legend: boolean;
+	noLevels: boolean;
+	noCategories: boolean;
+	categories: [Category, string[]][];
+	order: Category[];
+	challenges: string[];
+	levels: {
+		like: number;
+		love: number;
+		adore: number;
+		fire: number;
+	}
+}
 
 interface Writing {
 	type: string,
