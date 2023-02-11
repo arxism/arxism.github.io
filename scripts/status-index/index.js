@@ -74,8 +74,8 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
   }
   #${eids.dialog} pre {
     overflow: auto;
-  	padding: 20px;
     background: #555;
+	  padding: 20px;
     max-height: 70vh;
   }
 </style>`;
@@ -99,21 +99,7 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
     const configString = `
 {\n
   "showLegend": true,\n
-  "showCategories": false,\n
-  "showCounts": true,\n
-  "categories": [\n
-    ["Index", ["index"]],\n
-    ["Erotica", ["erotica"]],\n
-    ["Photography", ["photography"]],\n
-    ["Satire / Parody", ["satire", "parody"]],\n
-    ["Poetry", ["poetry", "poem"]],\n
-    ["Dominance / submission", ["d-s", "dominant", "dominance", "submission", "dom", "dominate", "domination"]],\n
-    ["Polls", ["poll"]],\n
-    ["FetLife", ["fetlife"]],\n
-    ["General", ["writing", "self-reflection"]]\n
-  ],\n
-  "categoryOrder": ["Polls", "General", "FetLife", "Dominance / submission", "Poetry", "Satire / Parody", "Erotica", "Photography", "Misc"],\n
-  "hashtags": ["WBDC", "#"],\n
+  "showDate": true,\n
   "counts": {\n
     "like": 25,\n
     "love": 50,\n
@@ -123,30 +109,14 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
   "escapeOutput": false\n
 }\n`;
     let config = JSON.parse(configString);
-    let writings = [];
-    const getChallengeLinks = (html) => {
-        const { hashtags } = config;
-        const document = (new DOMParser()).parseFromString(html, "text/html");
-        const links = Array.from(document.querySelectorAll('a'));
+    let statuses = [];
+    const format = (s) => {
         const e = config.escapeOutput ? '\\' : '';
-        return links.map(l => hashtags.some(p => l.innerHTML.trim().startsWith(p)) ? `${e}*${e}[${l.innerHTML}](${l.href})${e}*` : '').filter(a => a);
-    };
-    const format = (writings, writing) => {
-        var _a;
-        const { attributes: { created_at: createdAt, comment_count: commentCount, title, path, tags, body, likes } } = writing;
-        const { escapeOutput, showCategories, categories, showCounts, counts: { like, love, adore, fire } } = config;
-        const links = getChallengeLinks(body);
-        const tagNames = tags.map(t => t.slug);
-        const category = categories.reduce((cat, [title, slugs]) => {
-            if (!showCategories)
-                return 'Misc';
-            if (cat !== 'Misc')
-                return cat;
-            return tagNames.some(t => slugs.includes(t)) ? title : cat;
-        }, 'Misc');
+        const { attributes: { created_at: createdAt, path, raw_body: rawBody, likes, comment_count: commentCount } } = s;
+        const { counts: { like, love, adore, fire } } = config;
         const popularity = (() => {
-            let liked = '➖';
-            let chatty = '➖';
+            let liked = '';
+            let chatty = '';
             if (likes.total >= like)
                 liked = '♥️';
             if (likes.total >= love)
@@ -163,13 +133,9 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
                 chatty = '🗯️';
             if (commentCount >= fire)
                 chatty = '🤯';
-            return showCounts ? `${liked}${chatty}` : '➖';
+            return [liked, chatty].join(' ');
         })();
-        const e = escapeOutput ? '\\' : '';
-        return Object.assign(Object.assign({}, writings), { [category]: [
-                ...((_a = writings[category]) !== null && _a !== void 0 ? _a : []),
-                `${e}* ${createdAt.substring(0, 10)} ${popularity} ${e}[${title}](https://fetlife.com${path}) ${links.join(' ')}`,
-            ] });
+        return `${e}> ${rawBody.replaceAll('\n', `\n${e}> `)}\n${e}> ${e}[${createdAt.substring(0, 10)}](https://fetlife.com${path}) ${popularity} \n`;
     };
     const legend = () => {
         const { like, love, adore, fire } = config.counts;
@@ -181,20 +147,24 @@ ${e}* ❤️ 💬 > ${love} loves / comments\n
 ${e}* 💝 🗯️ > ${adore} loves / comments\n
 ${e}* 🔥 🤯 > ${fire} loves / comments\n`;
     };
-    const list = () => {
-        const processed = writings.reduce(format, {});
+    const date = () => {
         const e = config.escapeOutput ? '\\' : '';
-        const cats = config.categoryOrder
-            .filter(category => { var _a; return (_a = processed === null || processed === void 0 ? void 0 : processed[category]) === null || _a === void 0 ? void 0 : _a.length; })
-            .map(category => { var _a; return `${e}### ${category}\n\n${((_a = processed[category]) !== null && _a !== void 0 ? _a : []).join('\n')}\n`; });
-        const strings = config.showLegend ? [legend(), ...cats] : cats;
-        return strings.join('\n');
+        const dateString = (new Date()).toISOString().substring(0, 10);
+        return `${e}### Last updated ${dateString}\n`;
     };
-    const log = (msg) => alert(`FL WRITING INDEX: ${msg}`);
+    const list = () => {
+        const sorted = statuses
+            .filter(st => st.attributes.likes.total > config.counts.like || st.attributes.comment_count > config.counts.like)
+            .sort((a, b) => b.attributes.likes.total - a.attributes.likes.total);
+        const before = [config.showLegend ? legend() : '', config.showDate ? date() : ''].filter(a => a);
+        const strings = sorted.map(format);
+        return [...before, ...strings].join('\n');
+    };
+    const log = (msg) => alert(`FL STATUS INDEX: ${msg}`);
     const URL_REG = /https:\/\/fetlife.com\/users\/(\d+)(.*)?/;
     const perPage = 7;
-    const getWritings = (userId, marker, i) => __awaiter(this, void 0, void 0, function* () {
-        const writingsResp = yield fetch(`https://fetlife.com/users/${userId}/activity/writings?per_page=${perPage}${marker ? `&marker=${marker}` : ''}`, {
+    const getStatuses = (userId, marker, i) => __awaiter(this, void 0, void 0, function* () {
+        const resp = yield fetch(`https://fetlife.com/users/${userId}/activity/statuses?per_page=${perPage}${marker ? `&marker=${marker}` : ''}`, {
             "credentials": "include",
             "headers": {
                 "User-Agent": navigator.userAgent,
@@ -203,19 +173,20 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`;
                 "Content-Type": "application/json",
                 "Sec-Fetch-Dest": "empty",
                 "Sec-Fetch-Mode": "cors",
-                "Sec-Fetch-Site": "same-origin"
+                "Sec-Fetch-Site": "same-origin",
+                "If-None-Match": "W/\"466e08437bec06500fe0545665115232\""
             },
-            "referrer": `https://fetlife.com/users/${userId}/activity/writings`,
+            "referrer": `https://fetlife.com/users/${userId}/activity/statuses`,
             "method": "GET",
             "mode": "cors"
         });
-        const json = yield writingsResp.json();
+        const json = yield resp.json();
         const { stories, no_more: noMore, marker: nextMarker } = json;
-        console.log(`waiting ${nextMarker}`);
         const dialog = document.getElementById(eids.dialog);
-        document.querySelector(`#${eids.status}`).innerHTML = `getting writings... ${perPage * (i !== null && i !== void 0 ? i : 0)}`;
+        document.querySelector(`#${eids.status}`).innerHTML = `getting statuses... ${perPage * (i !== null && i !== void 0 ? i : 0)}`;
         yield new Promise(resolve => setTimeout(resolve, 1500));
-        return (noMore || !nextMarker || !(dialog === null || dialog === void 0 ? void 0 : dialog.open)) ? stories : [...stories, ...(yield getWritings(userId, nextMarker, (i !== null && i !== void 0 ? i : 0) + 1))];
+        console.log(stories);
+        return (noMore || !nextMarker || !(dialog === null || dialog === void 0 ? void 0 : dialog.open)) ? stories : [...stories, ...(yield getStatuses(userId, nextMarker, (i !== null && i !== void 0 ? i : 0) + 1))];
     });
     const updateConfig = () => {
         var _a, _b, _c;
@@ -264,9 +235,9 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`;
             return log('Not on user page');
         renderDialog();
         document.getElementById(eids.dialog).showModal();
-        writings = yield getWritings(userId);
+        statuses = yield getStatuses(userId);
         updatePreview();
-        document.getElementById(eids.status).innerHTML = `${writings.length} writings found`;
+        document.getElementById(eids.status).innerHTML = `${statuses.length} statuses found`;
         document.getElementById(eids.copy).addEventListener('click', () => onCopy());
     });
     main();

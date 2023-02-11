@@ -1,4 +1,4 @@
-const scripts = ['poll', 'writing-index'];
+const scripts = ['poll', 'writing-index', 'status-index'];
 
 const loadScript = (name) => {
   const wrap = code => `javascript: (function() {\n${code}\n})()`;
