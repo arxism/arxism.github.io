@@ -111,7 +111,8 @@ const _generateIndex = async () => {
      "love": 50,\n
      "adore": 100,\n
      "fire": 250\n
-    }\n
+    },\n
+	  "escape": false\n
 }\n
 	`;
 
@@ -122,14 +123,15 @@ const _generateIndex = async () => {
 		const { challenges } = config;
 		const document = (new DOMParser()).parseFromString(html, "text/html");
 		const links: HTMLAnchorElement[] = Array.from(document.querySelectorAll('a'));
+		const e = config.escape ? '\\' : '';
 		return links.map(
-			l => challenges.some(p => l.innerHTML.trim().startsWith(p)) ? `*[${l.innerHTML}](${l.href})*` : ''
+			l => challenges.some(p => l.innerHTML.trim().startsWith(p)) ? `${e}*${e}[${l.innerHTML}](${l.href})${e}*` : ''
 		).filter(a => a);
 	}
 
 	const format = (writings: { [category: string]: string[] }, writing: Writing): { [category: string]: string[] } => {
 		const { attributes: { created_at: createdAt, comment_count: commentCount, title, path, tags, body, likes } } = writing;
-		const { noCategories, categories, noLevels, levels: { like, love, adore, fire } } = config;
+		const { escape, noCategories, categories, noLevels, levels: { like, love, adore, fire } } = config;
 
 		const links = getChallengeLinks(body);
 		const tagNames = tags.map(t => t.slug);
@@ -151,32 +153,34 @@ const _generateIndex = async () => {
 			if (commentCount >= fire) chatty = '🤯';
 			return noLevels ? '➖' : `${liked}${chatty} `;
 		})();
+		const e = escape ? '\\' : '';
 
 		return {
 			...writings,
 			[category]: [
 				...(writings[category] ?? []),
-				`* ${createdAt.substring(0, 10)} ${popularity} [${title}](https://fetlife.com${path}) ${links.join(' ')}`,
+				`${e}* ${createdAt.substring(0, 10)} ${popularity} ${e}[${title}](https://fetlife.com${path}) ${links.join(' ')}`,
 			]
 		};
 	}
 
 	const legend = () => {
 		const { like, love, adore, fire } = config.levels;
-		return `\
-#### Legend\n
+		const e = config.escape ? '\\' : '';
+		return `${e}#### Legend\n
 \n
-* ♥️ 💭 > ${like} loves / comments\n
-* ❤️ 💬 > ${love} loves / comments\n
-* 💝 🗯️ > ${adore} loves / comments\n
-* 🔥 🤯 > ${fire} loves / comments\n`
+${e}* ♥️ 💭 > ${like} loves / comments\n
+${e}* ❤️ 💬 > ${love} loves / comments\n
+${e}* 💝 🗯️ > ${adore} loves / comments\n
+${e}* 🔥 🤯 > ${fire} loves / comments\n`
 	};
 
 	const list = () => {
 		const processed = writings.reduce(format, {});
+		const e = config.escape ? '\\' : '';
 		const cats = config.order
 			.filter(category => processed?.[category]?.length)
-			.map(category => `### ${category}\n\n${(processed[category] ?? []).join('\n')}\n`);
+			.map(category => `${e}### ${category}\n\n${(processed[category] ?? []).join('\n')}\n`);
 		const strings = config.legend ? [legend(), ...cats] : cats;
 		return strings.join('\n');
 	}
@@ -279,6 +283,7 @@ interface Config {
 	categories: [Category, string[]][];
 	order: Category[];
 	challenges: string[];
+	escape: boolean;
 	levels: {
 		like: number;
 		love: number;

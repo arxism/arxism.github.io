@@ -117,7 +117,8 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
      "love": 50,\n
      "adore": 100,\n
      "fire": 250\n
-    }\n
+    },\n
+	  "escape": false\n
 }\n
 	`;
     let config = JSON.parse(configString);
@@ -126,12 +127,13 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
         const { challenges } = config;
         const document = (new DOMParser()).parseFromString(html, "text/html");
         const links = Array.from(document.querySelectorAll('a'));
-        return links.map(l => challenges.some(p => l.innerHTML.trim().startsWith(p)) ? `*[${l.innerHTML}](${l.href})*` : '').filter(a => a);
+        const e = config.escape ? '\\' : '';
+        return links.map(l => challenges.some(p => l.innerHTML.trim().startsWith(p)) ? `${e}*${e}[${l.innerHTML}](${l.href})${e}*` : '').filter(a => a);
     };
     const format = (writings, writing) => {
         var _a;
         const { attributes: { created_at: createdAt, comment_count: commentCount, title, path, tags, body, likes } } = writing;
-        const { noCategories, categories, noLevels, levels: { like, love, adore, fire } } = config;
+        const { escape, noCategories, categories, noLevels, levels: { like, love, adore, fire } } = config;
         const links = getChallengeLinks(body);
         const tagNames = tags.map(t => t.slug);
         const category = categories.reduce((cat, [title, slugs]) => {
@@ -162,26 +164,28 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
                 chatty = '🤯';
             return noLevels ? '➖' : `${liked}${chatty} `;
         })();
+        const e = escape ? '\\' : '';
         return Object.assign(Object.assign({}, writings), { [category]: [
                 ...((_a = writings[category]) !== null && _a !== void 0 ? _a : []),
-                `* ${createdAt.substring(0, 10)} ${popularity} [${title}](https://fetlife.com${path}) ${links.join(' ')}`,
+                `${e}* ${createdAt.substring(0, 10)} ${popularity} ${e}[${title}](https://fetlife.com${path}) ${links.join(' ')}`,
             ] });
     };
     const legend = () => {
         const { like, love, adore, fire } = config.levels;
-        return `\
-#### Legend\n
+        const e = config.escape ? '\\' : '';
+        return `${e}#### Legend\n
 \n
-* ♥️ 💭 > ${like} loves / comments\n
-* ❤️ 💬 > ${love} loves / comments\n
-* 💝 🗯️ > ${adore} loves / comments\n
-* 🔥 🤯 > ${fire} loves / comments\n`;
+${e}* ♥️ 💭 > ${like} loves / comments\n
+${e}* ❤️ 💬 > ${love} loves / comments\n
+${e}* 💝 🗯️ > ${adore} loves / comments\n
+${e}* 🔥 🤯 > ${fire} loves / comments\n`;
     };
     const list = () => {
         const processed = writings.reduce(format, {});
+        const e = config.escape ? '\\' : '';
         const cats = config.order
             .filter(category => { var _a; return (_a = processed === null || processed === void 0 ? void 0 : processed[category]) === null || _a === void 0 ? void 0 : _a.length; })
-            .map(category => { var _a; return `### ${category}\n\n${((_a = processed[category]) !== null && _a !== void 0 ? _a : []).join('\n')}\n`; });
+            .map(category => { var _a; return `${e}### ${category}\n\n${((_a = processed[category]) !== null && _a !== void 0 ? _a : []).join('\n')}\n`; });
         const strings = config.legend ? [legend(), ...cats] : cats;
         return strings.join('\n');
     };
