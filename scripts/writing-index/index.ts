@@ -88,33 +88,32 @@ const _generateIndex = async () => {
 	</template>
 	`;
 
-	const configString = `
+const configString = `
 {\n
-	  "legend": true,\n
-    "noCategories": false,\n
-    "noLevels": false,\n
-    "categories": [\n
-     ["Index", ["index"]],\n
-     ["Erotica", ["erotica"]],\n
-     ["Photography", ["photography"]],\n
-     ["Satire / Parody", ["satire", "parody"]],\n
-     ["Poetry", ["poetry", "poem"]],\n
-     ["Dominance / submission", ["d-s", "dominant", "dominance", "submission", "dom", "dominate", "domination"]],\n
-     ["Polls", ["poll"]],\n
-     ["FetLife", ["fetlife"]],\n
-     ["General", ["writing", "self-reflection"]]\n
-    ],\n
-    "order": ["Polls", "General", "FetLife", "Dominance / submission", "Poetry", "Satire / Parody", "Erotica", "Photography", "Misc"],\n
-    "challenges": ["WBDC", "#"],\n
-    "levels": {\n
-     "like": 25,\n
-     "love": 50,\n
-     "adore": 100,\n
-     "fire": 250\n
-    },\n
-	  "escape": false\n
-}\n
-	`;
+  "legend": true,\n
+  "noCategories": false,\n
+  "noLevels": false,\n
+  "categories": [\n
+    ["Index", ["index"]],\n
+    ["Erotica", ["erotica"]],\n
+    ["Photography", ["photography"]],\n
+    ["Satire / Parody", ["satire", "parody"]],\n
+    ["Poetry", ["poetry", "poem"]],\n
+    ["Dominance / submission", ["d-s", "dominant", "dominance", "submission", "dom", "dominate", "domination"]],\n
+    ["Polls", ["poll"]],\n
+    ["FetLife", ["fetlife"]],\n
+    ["General", ["writing", "self-reflection"]]\n
+  ],\n
+  "order": ["Polls", "General", "FetLife", "Dominance / submission", "Poetry", "Satire / Parody", "Erotica", "Photography", "Misc"],\n
+  "challenges": ["WBDC", "#"],\n
+  "levels": {\n
+    "like": 25,\n
+    "love": 50,\n
+    "adore": 100,\n
+    "fire": 250\n
+   },\n
+  "escape": false\n
+}\n`;
 
 	let config = JSON.parse(configString) as Config;
 	let writings = [] as Writing[];
