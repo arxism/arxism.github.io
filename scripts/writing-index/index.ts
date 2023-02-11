@@ -177,7 +177,7 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`
 	};
 
 	const list = () => {
-		const processed = writings.reduce(format, {});
+		const processed = writings.filter(w => !w.attributes.only_friends).reduce(format, {});
 		const e = config.escapeOutput ? '\\' : '';
 		const cats = config.categoryOrder
 			.filter(category => processed?.[category]?.length)

@@ -182,7 +182,7 @@ ${e}* 💝 🗯️ > ${adore} loves / comments\n
 ${e}* 🔥 🤯 > ${fire} loves / comments\n`;
     };
     const list = () => {
-        const processed = writings.reduce(format, {});
+        const processed = writings.filter(w => !w.attributes.only_friends).reduce(format, {});
         const e = config.escapeOutput ? '\\' : '';
         const cats = config.categoryOrder
             .filter(category => { var _a; return (_a = processed === null || processed === void 0 ? void 0 : processed[category]) === null || _a === void 0 ? void 0 : _a.length; })

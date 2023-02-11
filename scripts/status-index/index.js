@@ -100,6 +100,7 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
 {\n
   "showLegend": true,\n
   "showDate": true,\n
+  "showAll": false,\n
   "counts": {\n
     "like": 25,\n
     "love": 50,\n
@@ -154,7 +155,12 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`;
     };
     const list = () => {
         const sorted = statuses
-            .filter(st => st.attributes.likes.total > config.counts.like || st.attributes.comment_count > config.counts.like)
+            .filter(st => !st.attributes.only_friends)
+            .filter(st => {
+            if (config.showAll)
+                return st;
+            return st.attributes.likes.total > config.counts.like || st.attributes.comment_count > config.counts.like;
+        })
             .sort((a, b) => b.attributes.likes.total - a.attributes.likes.total);
         const before = [config.showLegend ? legend() : '', config.showDate ? date() : ''].filter(a => a);
         const strings = sorted.map(format);

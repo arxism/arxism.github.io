@@ -94,6 +94,7 @@ const _generateIndex = async () => {
 {\n
   "showLegend": true,\n
   "showDate": true,\n
+  "showAll": false,\n
   "counts": {\n
     "like": 25,\n
     "love": 50,\n
@@ -110,7 +111,7 @@ const _generateIndex = async () => {
 	const format = (s: Status) => {
 		const e = config.escapeOutput ? '\\' : '';
 		const { attributes: { created_at: createdAt, path, raw_body: rawBody, likes, comment_count: commentCount } } = s;
-		const { counts: { like, love, adore, fire}} = config;
+		const { counts: { like, love, adore, fire } } = config;
 
 		const popularity = (() => {
 			let liked = '';
@@ -148,7 +149,11 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`
 
 	const list = () => {
 		const sorted = statuses
-			.filter(st => st.attributes.likes.total > config.counts.like || st.attributes.comment_count > config.counts.like)
+			.filter(st => !st.attributes.only_friends)
+			.filter(st => {
+			  if (config.showAll) return st;
+				return st.attributes.likes.total > config.counts.like || st.attributes.comment_count > config.counts.like
+			})
 			.sort((a, b) => b.attributes.likes.total - a.attributes.likes.total);
 		const before = [config.showLegend ? legend() : '', config.showDate ? date() : ''].filter(a => a);
 		const strings = sorted.map(format)
@@ -250,6 +255,7 @@ _generateIndex();
 interface Config {
 	showLegend: boolean;
 	showDate: boolean;
+	showAll: boolean;
 	escapeOutput: boolean;
 	counts: {
 		like: number;
