@@ -3,6 +3,7 @@ const _generateIndex = async () => {
 	const eids = {
 		template: `${slug}-template`,
 		close: `${slug}-close`,
+		stop: `${slug}-stop`,
 		dialog: `${slug}`,
 		copy: `${slug}-copy`,
 		config: `${slug}-config`,
@@ -50,9 +51,18 @@ const _generateIndex = async () => {
     background: #c00;
     border: none;
   }
-  #${eids.close} {
+  #${eids.close}, #${eids.stop} {
     background: #222;
     border: 1px solid #444;
+  }
+  #${eids.stop} {
+	  display: none;
+  }
+  #${eids.dialog}[data-loading="true"] #${eids.stop} {
+	  display: block;
+  }
+  #${eids.dialog}[data-loading="true"] #${eids.close} {
+	  display: none;
   }
   #${eids.dialog}[data-error="true"] #${eids.config} {
     border: 2px solid red;
@@ -83,6 +93,7 @@ const _generateIndex = async () => {
   	    <div id="${eids.meta}">
     	    <div id="${eids.status}"></div>
   	      <button id="${eids.copy}">Copy</button>
+  	      <button id="${eids.stop}">Stop</button>
   	      <button id="${eids.close}">Close</button>
   	    </div>
 	    </div>
@@ -90,7 +101,7 @@ const _generateIndex = async () => {
 	</template>
 	`;
 
-const configString = `
+	const configString = `
 {\n
   "showLegend": true,\n
   "showCategories": false,\n
@@ -211,7 +222,7 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`
 		const dialog = document.getElementById(eids.dialog) as HTMLDialogElement;
 		document.querySelector(`#${eids.status}`)!.innerHTML = `getting writings... ${perPage * (i ?? 0)}`;
 		await new Promise(resolve => setTimeout(resolve, 1500));
-		return (noMore || !nextMarker || !dialog?.open) ? stories : [...stories, ...(await getWritings(userId, nextMarker, (i ?? 0) + 1))];
+		return (noMore || !nextMarker || !dialog?.open || dialog.dataset.loading !== 'true') ? stories : [...stories, ...(await getWritings(userId, nextMarker, (i ?? 0) + 1))];
 	};
 
 	const updateConfig = () => {
@@ -251,6 +262,10 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`
 			const d = document.getElementById(eids.dialog);
 			if (d) document.body.removeChild(d);
 		});
+		dialog.querySelector(`#${eids.stop}`)?.addEventListener('click', () => {
+			const d = document.getElementById(eids.dialog) as HTMLDialogElement;
+			d.dataset.loading = "false";
+		});
 
 		document.body.appendChild(dialog);
 		updatePreview();
@@ -262,10 +277,13 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`
 		if (!userId) return log('Not on user page');
 
 		renderDialog();
-		(document.getElementById(eids.dialog) as HTMLDialogElement).showModal();
+		const dialog = document.getElementById(eids.dialog) as HTMLDialogElement;
+		dialog.showModal();
 
+		dialog.dataset.loading = 'true';
 		writings = await getWritings(userId);
 		updatePreview();
+		dialog.dataset.loading = 'false';
 		document.getElementById(eids.status)!.innerHTML = `${writings.length} writings found`;
 		document.getElementById(eids.copy)!.addEventListener('click', () => onCopy());
 	};

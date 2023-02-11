@@ -12,6 +12,7 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
     const eids = {
         template: `${slug}-template`,
         close: `${slug}-close`,
+        stop: `${slug}-stop`,
         dialog: `${slug}`,
         copy: `${slug}-copy`,
         config: `${slug}-config`,
@@ -58,12 +59,21 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
     background: #c00;
     border: none;
   }
-  #${eids.close} {
+  #${eids.close}, #${eids.stop} {
     background: #222;
     border: 1px solid #444;
   }
   #${eids.dialog}[data-error="true"] #${eids.config} {
     border: 2px solid red;
+  }
+  #${eids.stop} {
+	  display: none;
+  }
+  #${eids.dialog}[data-loading="true"] #${eids.stop} {
+	  display: block;
+  }
+  #${eids.dialog}[data-loading="true"] #${eids.close} {
+	  display: none;
   }
   #${eids.config} {
     margin-right: 10px;
@@ -90,6 +100,7 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
   	    <div id="${eids.meta}">
     	    <div id="${eids.status}"></div>
   	      <button id="${eids.copy}">Copy</button>
+  	      <button id="${eids.stop}">Stop</button>
   	      <button id="${eids.close}">Close</button>
   	    </div>
 	    </div>
@@ -191,8 +202,7 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`;
         const dialog = document.getElementById(eids.dialog);
         document.querySelector(`#${eids.status}`).innerHTML = `getting statuses... ${perPage * (i !== null && i !== void 0 ? i : 0)}`;
         yield new Promise(resolve => setTimeout(resolve, 1500));
-        console.log(stories);
-        return (noMore || !nextMarker || !(dialog === null || dialog === void 0 ? void 0 : dialog.open)) ? stories : [...stories, ...(yield getStatuses(userId, nextMarker, (i !== null && i !== void 0 ? i : 0) + 1))];
+        return (noMore || !nextMarker || !(dialog === null || dialog === void 0 ? void 0 : dialog.open) || dialog.dataset.loading !== 'true') ? stories : [...stories, ...(yield getStatuses(userId, nextMarker, (i !== null && i !== void 0 ? i : 0) + 1))];
     });
     const updateConfig = () => {
         var _a, _b, _c;
@@ -215,7 +225,7 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`;
         document.querySelector(`#${eids.copy}`).innerHTML = `Copied ✓`;
     };
     const renderDialog = () => {
-        var _a;
+        var _a, _b;
         document.body.innerHTML += dialogString;
         document.head.innerHTML += styles;
         const template = document.getElementById(eids.template);
@@ -231,6 +241,10 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`;
             if (d)
                 document.body.removeChild(d);
         });
+        (_b = dialog.querySelector(`#${eids.stop}`)) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => {
+            const d = document.getElementById(eids.dialog);
+            d.dataset.loading = "false";
+        });
         document.body.appendChild(dialog);
         updatePreview();
     };
@@ -240,9 +254,12 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`;
         if (!userId)
             return log('Not on user page');
         renderDialog();
-        document.getElementById(eids.dialog).showModal();
+        const dialog = document.getElementById(eids.dialog);
+        dialog.showModal();
+        dialog.dataset.loading = 'true';
         statuses = yield getStatuses(userId);
         updatePreview();
+        dialog.dataset.loading = 'false';
         document.getElementById(eids.status).innerHTML = `${statuses.length} statuses found`;
         document.getElementById(eids.copy).addEventListener('click', () => onCopy());
     });

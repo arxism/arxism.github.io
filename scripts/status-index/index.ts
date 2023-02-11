@@ -3,6 +3,7 @@ const _generateIndex = async () => {
 	const eids = {
 		template: `${slug}-template`,
 		close: `${slug}-close`,
+		stop: `${slug}-stop`,
 		dialog: `${slug}`,
 		copy: `${slug}-copy`,
 		config: `${slug}-config`,
@@ -50,12 +51,21 @@ const _generateIndex = async () => {
     background: #c00;
     border: none;
   }
-  #${eids.close} {
+  #${eids.close}, #${eids.stop} {
     background: #222;
     border: 1px solid #444;
   }
   #${eids.dialog}[data-error="true"] #${eids.config} {
     border: 2px solid red;
+  }
+  #${eids.stop} {
+	  display: none;
+  }
+  #${eids.dialog}[data-loading="true"] #${eids.stop} {
+	  display: block;
+  }
+  #${eids.dialog}[data-loading="true"] #${eids.close} {
+	  display: none;
   }
   #${eids.config} {
     margin-right: 10px;
@@ -83,6 +93,7 @@ const _generateIndex = async () => {
   	    <div id="${eids.meta}">
     	    <div id="${eids.status}"></div>
   	      <button id="${eids.copy}">Copy</button>
+  	      <button id="${eids.stop}">Stop</button>
   	      <button id="${eids.close}">Close</button>
   	    </div>
 	    </div>
@@ -151,7 +162,7 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`
 		const sorted = statuses
 			.filter(st => !st.attributes.only_friends)
 			.filter(st => {
-			  if (config.showAll) return st;
+				if (config.showAll) return st;
 				return st.attributes.likes.total > config.counts.like || st.attributes.comment_count > config.counts.like
 			})
 			.sort((a, b) => b.attributes.likes.total - a.attributes.likes.total);
@@ -185,8 +196,7 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`
 		const dialog = document.getElementById(eids.dialog) as HTMLDialogElement;
 		document.querySelector(`#${eids.status}`)!.innerHTML = `getting statuses... ${perPage * (i ?? 0)}`;
 		await new Promise(resolve => setTimeout(resolve, 1500));
-		console.log(stories);
-		return (noMore || !nextMarker || !dialog?.open) ? stories : [...stories, ...(await getStatuses(userId, nextMarker, (i ?? 0) + 1))];
+		return (noMore || !nextMarker || !dialog?.open || dialog.dataset.loading !== 'true') ? stories : [...stories, ...(await getStatuses(userId, nextMarker, (i ?? 0) + 1))];
 	};
 
 	const updateConfig = () => {
@@ -226,6 +236,10 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`
 			const d = document.getElementById(eids.dialog);
 			if (d) document.body.removeChild(d);
 		});
+		dialog.querySelector(`#${eids.stop}`)?.addEventListener('click', () => {
+			const d = document.getElementById(eids.dialog) as HTMLDialogElement;
+			d.dataset.loading = "false";
+		});
 
 		document.body.appendChild(dialog);
 		updatePreview();
@@ -237,10 +251,13 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`
 		if (!userId) return log('Not on user page');
 
 		renderDialog();
-		(document.getElementById(eids.dialog) as HTMLDialogElement).showModal();
+		const dialog = document.getElementById(eids.dialog) as HTMLDialogElement;
+		dialog.showModal();
 
+		dialog.dataset.loading = 'true';
 		statuses = await getStatuses(userId);
 		updatePreview();
+		dialog.dataset.loading = 'false';
 		document.getElementById(eids.status)!.innerHTML = `${statuses.length} statuses found`;
 		document.getElementById(eids.copy)!.addEventListener('click', () => onCopy());
 	};
