@@ -1,4 +1,18 @@
 const _generatePoll = async () => {
+  const slug = '_index-poll-dialog' as const;
+  const eids = _getEids(slug);
+
+  const configString = `
+{\n
+  "showNames": true,\n
+  "showSummary": true,\n
+  "showPrompt": true\n
+}\n`;
+
+  let config = JSON.parse(configString) as Config;
+  let options: Option[] = [];
+  let comments: Comment[] = [];
+
   const getMaxLength = (options: Option[]): MaxLength => {
     const maxLen = {
       ordinal: Math.max(...options.map(o => `${o.ordinal}.`.length)),
@@ -27,7 +41,7 @@ const _generatePoll = async () => {
     }
   }
 
-  const getOptionData = (options: string[], comments: Comment[]): Option[] => options
+  const getOptionData = (optionLabels: string[]): Option[] => optionLabels
     .map((label, index) => ({
       ordinal: index + 1,
       label,
@@ -40,7 +54,7 @@ const _generatePoll = async () => {
       }, [] as string[])
     }));
 
-  const renderSummary = (options: Option[], comments: Comment[]): string => {
+  const renderSummary = (): string => {
     const l = getMaxLength(options);
     const votes = options.reduce((count, option) => count + option.voters.length, 0);
     const voters = [...new Set(
@@ -48,6 +62,7 @@ const _generatePoll = async () => {
     )];
     const title = `─ ${votes} votes from ${voters.length} users ─`;
     const last = comments?.slice(-1)?.[0];
+    if (!last) return '- no votes yet';
     const lastCounted = `─ last seen ${last.author.nickname}`;
     return [
       `${title.padEnd(l.all / 2, '-')}`,
@@ -57,7 +72,7 @@ const _generatePoll = async () => {
       .replace(last.author.nickname, `[${last.author.nickname}](https://fetlife.com${last.meta.path})`);
   }
 
-  const renderData = (options: Option[]) => {
+  const renderData = () => {
     const divmod = (t: number, b: number) => [t / b, t % b];
     const maxLen = getMaxLength(options);
     const maxValue = Math.max(...options.map(o => o.count));
@@ -78,51 +93,116 @@ const _generatePoll = async () => {
     return str;
   }
 
-  const renderNames = (options: Option[]) => {
+  const renderNames = () => {
     return options.reduce((names, { voters, label, ordinal }) => {
       return [names, `* ${ordinal}`, `**${label}**:`, '\n', voters.join(', '), '\n'].join(' ');
     }, '')
   }
 
-  const log = (msg: string) => alert(`FL POLL: ${msg}`);
+  const list = () => {
+    const summary = renderSummary();
+    const names = renderNames();
+    const data = renderData()
 
-  const URL_REG = /https:\/\/fetlife.com\/users\/(\d+)\/posts\/(\d+)\/?/
+    let str = '';
 
-  const [_userId, postId] = URL_REG.exec(window.location.href)?.slice(1) ?? [];
-  if (!postId) return log('Not a writing');
+    str += `---`;
+    str += `\n## Results`;
+    str += `\n\n${data}`;
+    if (config.showSummary) str += `\n\n${summary}`;
+    if (config.showNames) str += `\n\n${names}`;
+    if (config.showPrompt) {
+      str += `\n---`;
+      str += `\n### To vote`;
+      str += `\n`;
+      str += `\n### Voting requires a number. The first line of your reply will be read for your numeric choice(s). Replies will only be tallied if they contain numeric values and only top-level replies are read.`;
+    }
+    return str;
 
-  const pollList = document.querySelector('main .story__copy ol');
-  if (!pollList) return log('Not a poll');
+  }
 
-  const pollOptions = Array.from(pollList.querySelectorAll('li')).map(a => a.innerHTML);
-  if (!pollOptions.length) return log('No options');
+  const updateConfig = () => {
+    let next = config;
+    document.querySelector(`#${eids.copy}`)!.innerHTML = `Copy Index`;
+    try {
+      next = JSON.parse(document.getElementById(eids.config)?.innerHTML?.replaceAll('<br>', ' ').replaceAll('&nbsp;', ' ') ?? '') as Config;
+      config = next;
+      (document.querySelector(`#${eids.dialog}`)! as HTMLDialogElement).dataset.error = 'false';
+    } catch (e) {
+      (document.querySelector(`#${eids.dialog}`)! as HTMLDialogElement).dataset.error = 'true';
+    }
+  };
 
-  const commentsResp = await fetch(`https://fetlife.com/comments?content_type=Post&content_id=${postId}&since=0&all=true&vue=true`);
-  const comments: Comment[] = (await commentsResp.json()).entries.map(getCommentData);
-  const voteComments = comments.filter(c => !c.parent_id);
+  const updatePreview = () => {
+    document.getElementById(eids.preview)!.innerHTML = list().replaceAll('\n', '<br>').replaceAll(' ', '&nbsp;');
+  }
 
-  const options = getOptionData(pollOptions, voteComments)
-    .map(option => ({ ...option, count: option.voters.length }))
-    .sort((a, b) => b.count - a.count);
+  const renderDialog = () => {
+    document.body.innerHTML += _dialogString(eids);
+    document.head.innerHTML += _dialogStyles(eids);
+    const template = document.getElementById(eids.template) as HTMLTemplateElement;
+    const dialog = template.content.cloneNode(true) as HTMLDialogElement;
 
-  const summary = renderSummary(options, comments);
-  const names = renderNames(options);
-  const data = renderData(options)
+    dialog.querySelector(`#${eids.config}`)!.innerHTML = configString.replaceAll('\n', '<br>').replaceAll(' ', '&nbsp;');
+    dialog.querySelector(`#${eids.config}`)!.addEventListener('blur', () => {
+      updateConfig();
+      updatePreview();
+    });
+    dialog.querySelector(`#${eids.copy}`)!.innerHTML = `Copy Index`;
+    dialog.querySelector(`#${eids.close}`)?.addEventListener('click', () => {
+      const d = document.getElementById(eids.dialog);
+      if (d) document.body.removeChild(d);
+    });
+    dialog.querySelector(`#${eids.stop}`)?.addEventListener('click', () => {
+      const d = document.getElementById(eids.dialog) as HTMLDialogElement;
+      d.dataset.loading = "false";
+    });
 
-  let str = '';
+    document.body.appendChild(dialog);
+    updatePreview();
+  }
 
-  str += `---`;
-  str += `\n## Results`;
-  str += `\n\n${data}`;
-  str += `\n\n${summary}`;
-  str += `\n\n${names}`;
-  str += `\n---`;
-  str += `\n### To vote`;
-  str += `\n`;
-  str += `\n### Voting requires a number. The first line of your reply will be read for your numeric choice(s). Replies will only be tallied if they contain numeric values and only top-level replies are read.`;
+  const onCopy = () => {
+    navigator.clipboard.writeText(list())
+    document.querySelector(`#${eids.copy}`)!.innerHTML = `Copied ✓`;
+  };
 
-  navigator.clipboard.writeText(str);
-  log(summary);
+  const main = async () => {
+
+    const log = (msg: string) => alert(`FL POLL: ${msg}`);
+
+    const URL_REG = /https:\/\/fetlife.com\/users\/(\d+)\/posts\/(\d+)\/?/
+
+    const [_userId, postId] = URL_REG.exec(window.location.href)?.slice(1) ?? [];
+    if (!postId) return log('Not a writing');
+
+    const pollList = document.querySelector('main .story__copy ol');
+    if (!pollList) return log('Not a poll');
+
+    const pollOptions = Array.from(pollList.querySelectorAll('li')).map(a => a.innerHTML);
+    if (!pollOptions.length) return log('No options');
+
+    renderDialog();
+    const dialog = document.getElementById(eids.dialog) as HTMLDialogElement;
+    dialog.showModal();
+
+    dialog.dataset.loading = 'true';
+
+    const commentsResp = await fetch(`https://fetlife.com/comments?content_type=Post&content_id=${postId}&since=0&all=true&vue=true`);
+    comments = (await commentsResp.json()).entries.map(getCommentData);
+    comments = comments.filter(c => !c.parent_id);
+    options = getOptionData(pollOptions)
+      .map(option => ({ ...option, count: option.voters.length }))
+      .sort((a, b) => b.count - a.count);
+
+    updatePreview();
+    dialog.dataset.loading = 'false';
+    document.getElementById(eids.status)!.innerHTML = `${comments.length} comments found`;
+    document.getElementById(eids.copy)!.addEventListener('click', () => onCopy());
+  };
+
+  main();
+
 };
 
 _generatePoll();
@@ -181,4 +261,10 @@ interface MaxLength {
   count: number;
   bar: number;
   all: number;
+}
+
+interface Config {
+  showSummary: boolean;
+  showNames: boolean;
+  showPrompt: boolean;
 }
