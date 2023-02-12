@@ -1,5 +1,5 @@
 const _generateIndex = async () => {
-	const slug = '_index-dialog' as const;
+	const slug = '_index-writing-dialog' as const;
 	const eids = {
 		template: `${slug}-template`,
 		close: `${slug}-close`,
@@ -27,18 +27,27 @@ const _generateIndex = async () => {
     position: relative;
     display: flex;
     flex-flow: row nowrap;
+	  overflow: hidden;
   }
-  #${eids.status} {
-    flex: 1 0 50%;
-  }
-  #${eids.meta} {
-    position: absolute;
-    top: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.9);
-    padding: 12px;
+  #${eids.panes} > div {
+	  overflow: auto;
+	  flex: 0 0 50%;
     display: flex;
     flex-flow: column;
+    justify-content: space-between; 
+	  max-height: 80vh;
+	}
+  #${eids.panes} > div:first-child {
+	  margin-right: 20px;
+	}
+  #${eids.meta} {
+    background: none;
+    padding: 0;
+    display: flex;
+    flex-flow: column;
+  	flex: 0 1;
+	  margin-top: 20px;
+	  margin-right: 20px;
   }
   #${eids.meta}>* {
     margin: 4px 0;
@@ -67,18 +76,21 @@ const _generateIndex = async () => {
   #${eids.dialog}[data-error="true"] #${eids.config} {
     border: 2px solid red;
   }
-  #${eids.config} {
-    margin-right: 10px;
-    flex: 0 0 calc(50% - 10px);
-  }
   #${eids.preview} {
-    flex: 0 0 50%;
+    flex: 1;
   }
   #${eids.dialog} pre {
     overflow: auto;
   	padding: 20px;
+  	margin: 0;
     background: #555;
-    max-height: 70vh;
+	  max-height: 75vh;
+  }
+  #${eids.config} {
+  	flex: 1 1 80vh;
+  	min-height: 100%;
+  }
+  #${eids.preview} pre {
   }
 </style>`;
 
@@ -86,16 +98,20 @@ const _generateIndex = async () => {
   <template id="${eids.template}">
 	  <dialog id="${eids.dialog}">
 	    <div id="${eids.panes}">
-	      <pre id="${eids.config}" contenteditable>
-	      </pre>
-	      <pre id="${eids.preview}">
-	      </pre>
-  	    <div id="${eids.meta}">
-    	    <div id="${eids.status}"></div>
-  	      <button id="${eids.copy}">Copy</button>
-  	      <button id="${eids.stop}">Stop</button>
-  	      <button id="${eids.close}">Close</button>
-  	    </div>
+	      <div>
+	        <pre id="${eids.config}" contenteditable>
+	        </pre>
+	      </div>
+	      <div>
+          <pre id="${eids.preview}">
+          </pre>
+     	    <div id="${eids.meta}">
+       	    <div id="${eids.status}"></div>
+     	      <button id="${eids.copy}">Copy</button>
+     	      <button id="${eids.stop}">Stop</button>
+     	      <button id="${eids.close}">Close</button>
+     	    </div>
+	      </div>
 	    </div>
 	  </dialog>
 	</template>
