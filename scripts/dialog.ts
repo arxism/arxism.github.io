@@ -1,14 +1,15 @@
 const _getEids = (slug: string) => ({
-    template: `${slug}-template`,
-    close: `${slug}-close`,
-    stop: `${slug}-stop`,
-    dialog: `${slug}`,
-    copy: `${slug}-copy`,
-    config: `${slug}-config`,
-    preview: `${slug}-preview`,
-    panes: `${slug}-panes`,
-    meta: `${slug}-meta`,
-    status: `${slug}-status`,
+  template: `${slug}-template`,
+  close: `${slug}-close`,
+  stop: `${slug}-stop`,
+  dialog: `${slug}`,
+  copy: `${slug}-copy`,
+  config: `${slug}-config`,
+  preview: `${slug}-preview`,
+  panes: `${slug}-panes`,
+  meta: `${slug}-meta`,
+  status: `${slug}-status`,
+  error: `${slug}-error`,
 });
 
 const _dialogStyles = (eids: ReturnType<typeof _getEids>) => `\
@@ -50,6 +51,11 @@ const _dialogStyles = (eids: ReturnType<typeof _getEids>) => `\
   #${eids.meta}>* {
     margin: 4px 0;
   }
+  #${eids.meta} > div:first-child {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+  }
   #${eids.meta}>button {
     color: #fff;
     padding: 10px;
@@ -58,39 +64,53 @@ const _dialogStyles = (eids: ReturnType<typeof _getEids>) => `\
     background: #c00;
     border: none;
   }
+  #${eids.dialog} button:hover:enabled {
+    filter: brightness(1.2);
+    cursor: pointer;
+  }
+  #${eids.copy}:disabled {
+    background: #555;
+  }
   #${eids.close}, #${eids.stop} {
     background: #222;
     border: 1px solid #444;
   }
   #${eids.stop} {
-      display: none;
+    display: none;
   }
   #${eids.dialog}[data-loading="true"] #${eids.stop} {
-      display: block;
+    display: block;
   }
   #${eids.dialog}[data-loading="true"] #${eids.close} {
-      display: none;
+    display: none;
   }
-  #${eids.dialog}[data-error="true"] #${eids.config} {
+  #${eids.dialog}[data-error="config"] #${eids.config} {
     border: 2px solid red;
+  }
+  #${eids.dialog}[data-error="config"] pre {
+    mouse-event: none;
   }
   #${eids.preview} {
     flex: 1;
   }
   #${eids.dialog} pre {
     overflow: auto;
-      padding: 20px;
-      margin: 0;
+    padding: 20px;
+    margin: 0;
     background: #555;
-      max-height: 75vh;
+    max-height: 75vh;
+    line-height: 1.2;
   }
   #${eids.config} {
-      flex: 1 1 80vh;
-      min-height: 100%;
+    flex: 1 1 80vh;
+    min-height: 100%;
   }
   #${eids.preview} pre {
   }
-</style>`;
+  #${eids.error} {
+    color: #c00;
+  }
+status</style>`;
 
 const _dialogString = (eids: ReturnType<typeof _getEids>) => `
   <template id="${eids.template}">
@@ -104,7 +124,10 @@ const _dialogString = (eids: ReturnType<typeof _getEids>) => `
           <pre id="${eids.preview}">
           </pre>
              <div id="${eids.meta}">
-               <div id="${eids.status}"></div>
+               <div>
+                 <div id="${eids.status}"></div>
+                 <div id="${eids.error}"></div>
+               </div>
                <button id="${eids.copy}">Copy</button>
                <button id="${eids.stop}">Stop</button>
                <button id="${eids.close}">Close</button>

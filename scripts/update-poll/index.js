@@ -18,6 +18,7 @@ const _getEids = (slug) => ({
     panes: `${slug}-panes`,
     meta: `${slug}-meta`,
     status: `${slug}-status`,
+    error: `${slug}-error`,
 });
 const _dialogStyles = (eids) => `\
 <style>
@@ -58,6 +59,11 @@ const _dialogStyles = (eids) => `\
   #${eids.meta}>* {
     margin: 4px 0;
   }
+  #${eids.meta} > div:first-child {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+  }
   #${eids.meta}>button {
     color: #fff;
     padding: 10px;
@@ -66,39 +72,53 @@ const _dialogStyles = (eids) => `\
     background: #c00;
     border: none;
   }
+  #${eids.dialog} button:hover:enabled {
+    filter: brightness(1.2);
+    cursor: pointer;
+  }
+  #${eids.copy}:disabled {
+    background: #555;
+  }
   #${eids.close}, #${eids.stop} {
     background: #222;
     border: 1px solid #444;
   }
   #${eids.stop} {
-      display: none;
+    display: none;
   }
   #${eids.dialog}[data-loading="true"] #${eids.stop} {
-      display: block;
+    display: block;
   }
   #${eids.dialog}[data-loading="true"] #${eids.close} {
-      display: none;
+    display: none;
   }
-  #${eids.dialog}[data-error="true"] #${eids.config} {
+  #${eids.dialog}[data-error="config"] #${eids.config} {
     border: 2px solid red;
+  }
+  #${eids.dialog}[data-error="config"] pre {
+    mouse-event: none;
   }
   #${eids.preview} {
     flex: 1;
   }
   #${eids.dialog} pre {
     overflow: auto;
-      padding: 20px;
-      margin: 0;
+    padding: 20px;
+    margin: 0;
     background: #555;
-      max-height: 75vh;
+    max-height: 75vh;
+    line-height: 1.2;
   }
   #${eids.config} {
-      flex: 1 1 80vh;
-      min-height: 100%;
+    flex: 1 1 80vh;
+    min-height: 100%;
   }
   #${eids.preview} pre {
   }
-</style>`;
+  #${eids.error} {
+    color: #c00;
+  }
+status</style>`;
 const _dialogString = (eids) => `
   <template id="${eids.template}">
       <dialog id="${eids.dialog}">
@@ -111,7 +131,10 @@ const _dialogString = (eids) => `
           <pre id="${eids.preview}">
           </pre>
              <div id="${eids.meta}">
-               <div id="${eids.status}"></div>
+               <div>
+                 <div id="${eids.status}"></div>
+                 <div id="${eids.error}"></div>
+               </div>
                <button id="${eids.copy}">Copy</button>
                <button id="${eids.stop}">Stop</button>
                <button id="${eids.close}">Close</button>
@@ -235,10 +258,10 @@ const _generatePoll = () => __awaiter(this, void 0, void 0, function* () {
         try {
             next = JSON.parse((_c = (_b = (_a = document.getElementById(eids.config)) === null || _a === void 0 ? void 0 : _a.innerHTML) === null || _b === void 0 ? void 0 : _b.replaceAll('<br>', ' ').replaceAll('&nbsp;', ' ')) !== null && _c !== void 0 ? _c : '');
             config = next;
-            document.querySelector(`#${eids.dialog}`).dataset.error = 'false';
+            document.querySelector(`#${eids.dialog}`).dataset.error = '';
         }
         catch (e) {
-            document.querySelector(`#${eids.dialog}`).dataset.error = 'true';
+            document.querySelector(`#${eids.dialog}`).dataset.error = 'config';
         }
     };
     const updatePreview = () => {
@@ -263,7 +286,7 @@ const _generatePoll = () => __awaiter(this, void 0, void 0, function* () {
         });
         (_b = dialog.querySelector(`#${eids.stop}`)) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => {
             const d = document.getElementById(eids.dialog);
-            d.dataset.loading = "false";
+            d.dataset.loading = "";
         });
         document.body.appendChild(dialog);
         updatePreview();
@@ -272,31 +295,41 @@ const _generatePoll = () => __awaiter(this, void 0, void 0, function* () {
         navigator.clipboard.writeText(list());
         document.querySelector(`#${eids.copy}`).innerHTML = `Copied ✓`;
     };
+    const fetchData = (postId) => __awaiter(this, void 0, void 0, function* () {
+        const commentsResp = yield fetch(`https://fetlife.com/comments?content_type=Post&content_id=${postId}&since=0&all=true&vue=true`);
+        return (yield commentsResp.json()).entries;
+    });
     const main = () => __awaiter(this, void 0, void 0, function* () {
         var _a, _b;
-        const log = (msg) => alert(`FL POLL: ${msg}`);
+        renderDialog();
         const URL_REG = /https:\/\/fetlife.com\/users\/(\d+)\/posts\/(\d+)\/?/;
         const [_userId, postId] = (_b = (_a = URL_REG.exec(window.location.href)) === null || _a === void 0 ? void 0 : _a.slice(1)) !== null && _b !== void 0 ? _b : [];
-        if (!postId)
-            return log('Not a writing');
+        const error = document.querySelector(`#${eids.error}`);
         const pollList = document.querySelector('main .story__copy ol');
-        if (!pollList)
-            return log('Not a poll');
-        const pollOptions = Array.from(pollList.querySelectorAll('li')).map(a => a.innerHTML);
-        if (!pollOptions.length)
-            return log('No options');
-        renderDialog();
+        const pollOptions = pollList ? Array.from(pollList.querySelectorAll('li')).map(a => a.innerHTML) : [];
+        if (!postId) {
+            error.innerHTML = 'Not a writing';
+        }
+        else if (!pollList) {
+            error.innerHTML = 'Not a poll';
+        }
+        else if (!pollList) {
+            error.innerHTML = 'Not options';
+        }
+        if (error.innerHTML) {
+            document.querySelector(`#${eids.dialog}`).dataset.error = 'true';
+            document.querySelector(`#${eids.copy}`).disabled = true;
+        }
         const dialog = document.getElementById(eids.dialog);
         dialog.showModal();
         dialog.dataset.loading = 'true';
-        const commentsResp = yield fetch(`https://fetlife.com/comments?content_type=Post&content_id=${postId}&since=0&all=true&vue=true`);
-        comments = (yield commentsResp.json()).entries.map(getCommentData);
+        comments = dialog.dataset.error ? [] : (yield fetchData(postId)).map(getCommentData);
         comments = comments.filter(c => !c.parent_id);
         options = getOptionData(pollOptions)
             .map(option => (Object.assign(Object.assign({}, option), { count: option.voters.length })))
             .sort((a, b) => b.count - a.count);
         updatePreview();
-        dialog.dataset.loading = 'false';
+        dialog.dataset.loading = '';
         document.getElementById(eids.status).innerHTML = `${comments.length} comments found`;
         document.getElementById(eids.copy).addEventListener('click', () => onCopy());
     });

@@ -127,9 +127,9 @@ const _generatePoll = async () => {
     try {
       next = JSON.parse(document.getElementById(eids.config)?.innerHTML?.replaceAll('<br>', ' ').replaceAll('&nbsp;', ' ') ?? '') as Config;
       config = next;
-      (document.querySelector(`#${eids.dialog}`)! as HTMLDialogElement).dataset.error = 'false';
+      (document.querySelector(`#${eids.dialog}`)! as HTMLDialogElement).dataset.error = '';
     } catch (e) {
-      (document.querySelector(`#${eids.dialog}`)! as HTMLDialogElement).dataset.error = 'true';
+      (document.querySelector(`#${eids.dialog}`)! as HTMLDialogElement).dataset.error = 'config';
     }
   };
 
@@ -155,7 +155,7 @@ const _generatePoll = async () => {
     });
     dialog.querySelector(`#${eids.stop}`)?.addEventListener('click', () => {
       const d = document.getElementById(eids.dialog) as HTMLDialogElement;
-      d.dataset.loading = "false";
+      d.dataset.loading = "";
     });
 
     document.body.appendChild(dialog);
@@ -167,36 +167,47 @@ const _generatePoll = async () => {
     document.querySelector(`#${eids.copy}`)!.innerHTML = `Copied ✓`;
   };
 
+  const fetchData = async (postId: string): Promise<Comment[]> => {
+    const commentsResp: Response = await fetch(`https://fetlife.com/comments?content_type=Post&content_id=${postId}&since=0&all=true&vue=true`);
+    return (await commentsResp.json()).entries;
+  }
+
   const main = async () => {
 
-    const log = (msg: string) => alert(`FL POLL: ${msg}`);
-
+    renderDialog();
     const URL_REG = /https:\/\/fetlife.com\/users\/(\d+)\/posts\/(\d+)\/?/
 
     const [_userId, postId] = URL_REG.exec(window.location.href)?.slice(1) ?? [];
-    if (!postId) return log('Not a writing');
-
+    const error = (document.querySelector(`#${eids.error}`) as HTMLDivElement);
     const pollList = document.querySelector('main .story__copy ol');
-    if (!pollList) return log('Not a poll');
+    const pollOptions = pollList ? Array.from(pollList.querySelectorAll('li')).map(a => a.innerHTML) : [];
 
-    const pollOptions = Array.from(pollList.querySelectorAll('li')).map(a => a.innerHTML);
-    if (!pollOptions.length) return log('No options');
+		if (!postId) {
+      error.innerHTML = 'Not a writing';
+		} else if (!pollList) {
+      error.innerHTML = 'Not a poll';
+		} else if (!pollList) {
+      error.innerHTML = 'Not options';
+		}
 
-    renderDialog();
+		if (error.innerHTML) {
+			(document.querySelector(`#${eids.dialog}`)! as HTMLDialogElement).dataset.error = 'true';
+      (document.querySelector(`#${eids.copy}`) as HTMLButtonElement).disabled = true;
+		}
+
     const dialog = document.getElementById(eids.dialog) as HTMLDialogElement;
     dialog.showModal();
 
     dialog.dataset.loading = 'true';
 
-    const commentsResp = await fetch(`https://fetlife.com/comments?content_type=Post&content_id=${postId}&since=0&all=true&vue=true`);
-    comments = (await commentsResp.json()).entries.map(getCommentData);
+    comments = dialog.dataset.error ? [] : (await fetchData(postId)).map(getCommentData);
     comments = comments.filter(c => !c.parent_id);
     options = getOptionData(pollOptions)
       .map(option => ({ ...option, count: option.voters.length }))
       .sort((a, b) => b.count - a.count);
 
     updatePreview();
-    dialog.dataset.loading = 'false';
+    dialog.dataset.loading = '';
     document.getElementById(eids.status)!.innerHTML = `${comments.length} comments found`;
     document.getElementById(eids.copy)!.addEventListener('click', () => onCopy());
   };

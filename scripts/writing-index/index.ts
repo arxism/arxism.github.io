@@ -132,9 +132,9 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`
 		try {
 			next = JSON.parse(document.getElementById(eids.config)?.innerHTML?.replaceAll('<br>', ' ').replaceAll('&nbsp;', ' ') ?? '') as Config;
 			config = next;
-			(document.querySelector(`#${eids.dialog}`)! as HTMLDialogElement).dataset.error = 'false';
+			(document.querySelector(`#${eids.dialog}`)! as HTMLDialogElement).dataset.error = '';
 		} catch (e) {
-			(document.querySelector(`#${eids.dialog}`)! as HTMLDialogElement).dataset.error = 'true';
+			(document.querySelector(`#${eids.dialog}`)! as HTMLDialogElement).dataset.error = 'config';
 		}
 	};
 
@@ -165,7 +165,7 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`
 		});
 		dialog.querySelector(`#${eids.stop}`)?.addEventListener('click', () => {
 			const d = document.getElementById(eids.dialog) as HTMLDialogElement;
-			d.dataset.loading = "false";
+			d.dataset.loading = "";
 		});
 
 		document.body.appendChild(dialog);
@@ -174,17 +174,21 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`
 
 
 	const main = async () => {
-		const [userId] = URL_REG.exec(window.location.href)?.slice(1) ?? [];
-		if (!userId) return log('Not on user page');
-
 		renderDialog();
+		const [userId] = URL_REG.exec(window.location.href)?.slice(1) ?? [];
+		if (!userId) {
+			(document.querySelector(`#${eids.dialog}`)! as HTMLDialogElement).dataset.error = 'true';
+      (document.querySelector(`#${eids.copy}`) as HTMLButtonElement).disabled = true;
+      (document.querySelector(`#${eids.error}`) as HTMLButtonElement).innerHTML = 'Not on a user page';
+		}
+
 		const dialog = document.getElementById(eids.dialog) as HTMLDialogElement;
 		dialog.showModal();
 
 		dialog.dataset.loading = 'true';
-		writings = await getWritings(userId);
+		writings = dialog.dataset.error ? [] : await getWritings(userId);
 		updatePreview();
-		dialog.dataset.loading = 'false';
+		dialog.dataset.loading = '';
 		document.getElementById(eids.status)!.innerHTML = `${writings.length} writings found`;
 		document.getElementById(eids.copy)!.addEventListener('click', () => onCopy());
 	};
