@@ -123,7 +123,7 @@ const _generatePoll = async () => {
 
   const updateConfig = () => {
     let next = config;
-    document.querySelector(`#${eids.copy}`)!.innerHTML = `Copy Index`;
+    document.querySelector(`#${eids.copy}`)!.innerHTML = `Copy Poll`;
     try {
       next = JSON.parse(document.getElementById(eids.config)?.innerHTML?.replaceAll('<br>', ' ').replaceAll('&nbsp;', ' ') ?? '') as Config;
       config = next;
@@ -148,7 +148,7 @@ const _generatePoll = async () => {
       updateConfig();
       updatePreview();
     });
-    dialog.querySelector(`#${eids.copy}`)!.innerHTML = `Copy Index`;
+    dialog.querySelector(`#${eids.copy}`)!.innerHTML = `Copy Poll`;
     dialog.querySelector(`#${eids.close}`)?.addEventListener('click', () => {
       const d = document.getElementById(eids.dialog);
       if (d) document.body.removeChild(d);

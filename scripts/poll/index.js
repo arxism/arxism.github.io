@@ -231,7 +231,7 @@ const _generatePoll = () => __awaiter(this, void 0, void 0, function* () {
     const updateConfig = () => {
         var _a, _b, _c;
         let next = config;
-        document.querySelector(`#${eids.copy}`).innerHTML = `Copy Index`;
+        document.querySelector(`#${eids.copy}`).innerHTML = `Copy Poll`;
         try {
             next = JSON.parse((_c = (_b = (_a = document.getElementById(eids.config)) === null || _a === void 0 ? void 0 : _a.innerHTML) === null || _b === void 0 ? void 0 : _b.replaceAll('<br>', ' ').replaceAll('&nbsp;', ' ')) !== null && _c !== void 0 ? _c : '');
             config = next;
@@ -255,7 +255,7 @@ const _generatePoll = () => __awaiter(this, void 0, void 0, function* () {
             updateConfig();
             updatePreview();
         });
-        dialog.querySelector(`#${eids.copy}`).innerHTML = `Copy Index`;
+        dialog.querySelector(`#${eids.copy}`).innerHTML = `Copy Poll`;
         (_a = dialog.querySelector(`#${eids.close}`)) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
             const d = document.getElementById(eids.dialog);
             if (d)
