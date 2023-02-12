@@ -1,13 +1,26 @@
-const scripts = ['poll', 'writing-index', 'status-index'];
+const scripts = ['update-poll', 'writing-index', 'status-index'];
 
 const loadScript = (name) => {
+  const clone = document.getElementById('bookmarklet-template').content.cloneNode(true);
+  const root = clone.querySelector('.rect');
+  root.querySelector('a').innerHTML = name.replaceAll('-', ' ').replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+  root.setAttribute('id', name);
+  const list = document.getElementById('bookmarklet-list');
+  const listSm = document.getElementById('bookmarklet-list-sm');
+  const anchor = root.querySelector('a');
+  anchor.setAttribute('id', name);
+  listSm.appendChild(anchor.cloneNode(true));
+  list.appendChild(clone);
+
   const wrap = code => `javascript: (function() {\n${code}\n})()`;
   const js = new XMLHttpRequest();
   js.open('GET', `./${name}/index.js`);
   js.onreadystatechange = function() {
-    const link = document.querySelector(`#${name} .bookmark a`);
+    const links = document.querySelectorAll(`#${name}`);
     const pre = document.querySelector(`#${name} pre.code-js > code`);
-    link.href = wrap(js.responseText);
+    Array.from(links).forEach(link => {
+      link.href = wrap(js.responseText);
+    })
     pre.innerHTML = wrap(js.responseText);
     hljs.highlightAll();
   }

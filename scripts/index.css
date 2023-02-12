@@ -32,6 +32,15 @@ code.key {
   white-space: nowrap;
 }
 
+#bookmarklet-list-sm {
+  display: inline;
+}
+
+#bookmarklet-list-sm>a {
+  text-decoration: underline;
+  margin: 0 10px 0 5px;
+}
+
 .bookmark>div {
   text-decoration: none;
   position: relative;
@@ -64,6 +73,7 @@ li {
   font-family: monospace;
   color: #ccc;
   margin-bottom: 30px;
+  margin-top: 30px;
 }
 
 .bookmark>div>a {
@@ -79,6 +89,7 @@ li {
   position: absolute;
   color: #FFF;
   text-decoration: underline;
+  text-transform: capitalize;
 }
 
 .languages {

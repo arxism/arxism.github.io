@@ -1,4 +1,4 @@
-# Create Poll
+# Update Poll
 
 Tabulates a poll based on the comments of a writing.
 

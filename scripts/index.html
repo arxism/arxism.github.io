@@ -25,13 +25,14 @@
           <p>There are alternative, browser-specific installation methods such as copying the link location
             of the bookmarklet link and pasting it into the Location field of a bookmark that you create using
             your browser's Bookmark Manager or Show All Bookmarks feature.</p>
-          <p>Drag the link on the left into your bookmarks toolbar.</p>
-          <ul>
+          <p style="display: inline;">Drag a link into your bookmarks toolbar:</p>
+          <div id="bookmarklet-list-sm"></div>
+          <template id="bookmarklet-template">
             <li>
-              <div id="poll" class="rect">
+              <div class="rect">
                 <div class="bookmark">
                   <div>
-                    <a>Create Poll</a>
+                    <a></a>
                     <div class="languages">
                       <a class="md" href="#md">MD</a>
                       <a class="ts" href="#ts">TS</a>
@@ -44,40 +45,8 @@
                 </div>
               </div>
             </li>
-            <li>
-              <div id="writing-index" class="rect">
-                <div class="bookmark">
-                  <div>
-                    <a>Writing Index</a>
-                    <div class="languages">
-                      <a class="md" href="#md">MD</a>
-                      <a class="ts" href="#ts">TS</a>
-                      <a class="js" href="#js">JS</a>
-                    </div>
-                    <pre class="code-md"><code class="language-md"></code></pre>
-                    <pre class="code-ts"><code class="language-ts"></code></pre>
-                    <pre class="code-js"><code class="language-js"></code></pre>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li>
-              <div id="status-index" class="rect">
-                <div class="bookmark">
-                  <div>
-                    <a>Status Index</a>
-                    <div class="languages">
-                      <a class="md" href="#md">MD</a>
-                      <a class="ts" href="#ts">TS</a>
-                      <a class="js" href="#js">JS</a>
-                    </div>
-                    <pre class="code-md"><code class="language-md"></code></pre>
-                    <pre class="code-ts"><code class="language-ts"></code></pre>
-                    <pre class="code-js"><code class="language-js"></code></pre>
-                  </div>
-                </div>
-              </div>
-            </li>
+          </template>
+          <ul id="bookmarklet-list">
           </ul>
         </article>
       </div>
