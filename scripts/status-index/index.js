@@ -7,21 +7,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
-    const slug = '_index-status-dialog';
-    const eids = {
-        template: `${slug}-template`,
-        close: `${slug}-close`,
-        stop: `${slug}-stop`,
-        dialog: `${slug}`,
-        copy: `${slug}-copy`,
-        config: `${slug}-config`,
-        preview: `${slug}-preview`,
-        panes: `${slug}-panes`,
-        meta: `${slug}-meta`,
-        status: `${slug}-status`,
-    };
-    const styles = `\
+const _getEids = (slug) => ({
+    template: `${slug}-template`,
+    close: `${slug}-close`,
+    stop: `${slug}-stop`,
+    dialog: `${slug}`,
+    copy: `${slug}-copy`,
+    config: `${slug}-config`,
+    preview: `${slug}-preview`,
+    panes: `${slug}-panes`,
+    meta: `${slug}-meta`,
+    status: `${slug}-status`,
+});
+const _dialogStyles = (eids) => `\
 <style>
   #${eids.dialog} {
     max-width: 75vw;
@@ -35,27 +33,27 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
     position: relative;
     display: flex;
     flex-flow: row nowrap;
-	  overflow: hidden;
+      overflow: hidden;
   }
   #${eids.panes} > div {
-	  overflow: auto;
-	  flex: 0 0 50%;
+      overflow: auto;
+      flex: 0 0 50%;
     display: flex;
     flex-flow: column;
     justify-content: space-between; 
-	  max-height: 80vh;
-	}
+      max-height: 80vh;
+    }
   #${eids.panes} > div:first-child {
-	  margin-right: 20px;
-	}
+      margin-right: 20px;
+    }
   #${eids.meta} {
     background: none;
     padding: 0;
     display: flex;
     flex-flow: column;
-  	flex: 0 1;
-	  margin-top: 20px;
-	  margin-right: 20px;
+      flex: 0 1;
+      margin-top: 20px;
+      margin-right: 20px;
   }
   #${eids.meta}>* {
     margin: 4px 0;
@@ -73,13 +71,13 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
     border: 1px solid #444;
   }
   #${eids.stop} {
-	  display: none;
+      display: none;
   }
   #${eids.dialog}[data-loading="true"] #${eids.stop} {
-	  display: block;
+      display: block;
   }
   #${eids.dialog}[data-loading="true"] #${eids.close} {
-	  display: none;
+      display: none;
   }
   #${eids.dialog}[data-error="true"] #${eids.config} {
     border: 2px solid red;
@@ -89,40 +87,43 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
   }
   #${eids.dialog} pre {
     overflow: auto;
-  	padding: 20px;
-  	margin: 0;
+      padding: 20px;
+      margin: 0;
     background: #555;
-	  max-height: 75vh;
+      max-height: 75vh;
   }
   #${eids.config} {
-  	flex: 1 1 80vh;
-  	min-height: 100%;
+      flex: 1 1 80vh;
+      min-height: 100%;
   }
   #${eids.preview} pre {
   }
 </style>`;
-    const dialogString = `
+const _dialogString = (eids) => `
   <template id="${eids.template}">
-	  <dialog id="${eids.dialog}">
-	    <div id="${eids.panes}">
-	      <div>
-	        <pre id="${eids.config}" contenteditable>
-	        </pre>
-	      </div>
-	      <div>
+      <dialog id="${eids.dialog}">
+        <div id="${eids.panes}">
+          <div>
+            <pre id="${eids.config}" contenteditable>
+            </pre>
+          </div>
+          <div>
           <pre id="${eids.preview}">
           </pre>
-     	    <div id="${eids.meta}">
-       	    <div id="${eids.status}"></div>
-     	      <button id="${eids.copy}">Copy</button>
-     	      <button id="${eids.stop}">Stop</button>
-     	      <button id="${eids.close}">Close</button>
-     	    </div>
-	      </div>
-	    </div>
-	  </dialog>
-	</template>
-	`;
+             <div id="${eids.meta}">
+               <div id="${eids.status}"></div>
+               <button id="${eids.copy}">Copy</button>
+               <button id="${eids.stop}">Stop</button>
+               <button id="${eids.close}">Close</button>
+             </div>
+          </div>
+        </div>
+      </dialog>
+    </template>
+    `;
+const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
+    const slug = '_index-status-dialog';
+    const eids = _getEids(slug);
     const configString = `
 {\n
   "showLegend": true,\n
@@ -242,8 +243,8 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`;
     };
     const renderDialog = () => {
         var _a, _b;
-        document.body.innerHTML += dialogString;
-        document.head.innerHTML += styles;
+        document.body.innerHTML += _dialogString(eids);
+        document.head.innerHTML += _dialogStyles(eids);
         const template = document.getElementById(eids.template);
         const dialog = template.content.cloneNode(true);
         dialog.querySelector(`#${eids.config}`).innerHTML = configString.replaceAll('\n', '<br>').replaceAll(' ', '&nbsp;');
