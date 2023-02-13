@@ -1,6 +1,8 @@
 const _generateIndex = async () => {
 	const slug = '_index-status-dialog' as const;
   const eids = _getEids(slug);
+  const version = "v1.0.0";
+  const title = `status-index ${version}`;
 
 	const configString = `
 {\n
@@ -127,6 +129,7 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`
 		const template = document.getElementById(eids.template) as HTMLTemplateElement;
 		const dialog = template.content.cloneNode(true) as HTMLDialogElement;
 
+    dialog.querySelector(`#${eids.title}`)!.innerHTML = title;
 		dialog.querySelector(`#${eids.config}`)!.innerHTML = configString.replaceAll('\n', '<br>').replaceAll(' ', '&nbsp;');
 		dialog.querySelector(`#${eids.config}`)!.addEventListener('blur', () => {
 			updateConfig();
