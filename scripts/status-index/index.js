@@ -30,7 +30,7 @@ const _dialogStyles = (eids) => `\
     background: #222;
     color: #fff;
     border: none;
-    padding: 0 20px 20px 20px;
+    padding: 10px 20px 20px 20px;
   }
   #${eids.title} {
     position: absolute;
@@ -72,6 +72,7 @@ const _dialogStyles = (eids) => `\
     display: flex;
     flex-flow: row wrap;
     justify-content: space-between;
+    margin-top: 20px;
   }
   #${eids.meta}>button {
     color: #fff;
@@ -104,9 +105,6 @@ const _dialogStyles = (eids) => `\
   #${eids.dialog}[data-error="config"] #${eids.config} {
     border: 2px solid red;
   }
-  #${eids.dialog}[data-error="config"] pre {
-    mouse-event: none;
-  }
   #${eids.preview} {
     flex: 1;
   }
@@ -122,6 +120,7 @@ const _dialogStyles = (eids) => `\
   #${eids.config} {
     flex: 1 1 80vh;
     min-height: 100%;
+    border: 2px solid transparent;
   }
   #${eids.preview} pre {
   }

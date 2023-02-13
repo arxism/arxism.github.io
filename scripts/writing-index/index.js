@@ -30,7 +30,7 @@ const _dialogStyles = (eids) => `\
     background: #222;
     color: #fff;
     border: none;
-    padding: 0 20px 20px 20px;
+    padding: 10px 20px 20px 20px;
   }
   #${eids.title} {
     position: absolute;
@@ -72,6 +72,7 @@ const _dialogStyles = (eids) => `\
     display: flex;
     flex-flow: row wrap;
     justify-content: space-between;
+    margin-top: 20px;
   }
   #${eids.meta}>button {
     color: #fff;
@@ -104,9 +105,6 @@ const _dialogStyles = (eids) => `\
   #${eids.dialog}[data-error="config"] #${eids.config} {
     border: 2px solid red;
   }
-  #${eids.dialog}[data-error="config"] pre {
-    mouse-event: none;
-  }
   #${eids.preview} {
     flex: 1;
   }
@@ -122,6 +120,7 @@ const _dialogStyles = (eids) => `\
   #${eids.config} {
     flex: 1 1 80vh;
     min-height: 100%;
+    border: 2px solid transparent;
   }
   #${eids.preview} pre {
   }
@@ -179,54 +178,64 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
     const eids = _getEids(slug);
     const version = "v1.0.0";
     const title = `writing-index ${version}`;
-    const configString = `
-{\n
-  "showLegend": true,\n
-  "showCategories": false,\n
-  "showCounts": true,\n
-  "categories": [\n
-    ["Index", ["index"]],\n
-    ["Erotica", ["erotica"]],\n
-    ["Photography", ["photography"]],\n
-    ["Satire / Parody", ["satire", "parody"]],\n
-    ["Poetry", ["poetry", "poem"]],\n
-    ["Dominance / submission", ["d-s", "dominant", "dominance", "submission", "dom", "dominate", "domination"]],\n
-    ["Polls", ["poll"]],\n
-    ["FetLife", ["fetlife"]],\n
-    ["General", ["writing", "self-reflection"]]\n
-  ],\n
-  "categoryOrder": ["Polls", "General", "FetLife", "Dominance / submission", "Poetry", "Satire / Parody", "Erotica", "Photography", "Misc"],\n
-  "hashtags": ["WBDC", "#"],\n
-  "counts": {\n
-    "like": 25,\n
-    "love": 50,\n
-    "adore": 100,\n
-    "fire": 250\n
-   },\n
-  "escapeOutput": false\n
-}\n`;
-    let config = JSON.parse(configString);
+    let config = {
+        showLegend: true,
+        showCategories: false,
+        showCounts: true,
+        category: {
+            tags: {
+                index: ["index"],
+                erotica: ["erotica"],
+                photography: ["photography"],
+                satire: ["satire", "parody"],
+                poetry: ["poetry", "poem"],
+                ds: ["d-s", "dominant", "dominance", "submission", "dom", "dominate", "domination"],
+                polls: ["poll"],
+                fetlife: ["fetlife"],
+                general: ["writing", "self-reflection"]
+            },
+            order: {
+                polls: "Polls",
+                general: "General",
+                fetlife: "FetLife",
+                ds: "Dominance / submission",
+                poetry: "Poetry",
+                satire: "Satire / Parody",
+                erotica: "Erotica",
+                photography: "Photography",
+                misc: "Misc"
+            }
+        },
+        hashtags: ["WBDC", "#"],
+        counts: {
+            like: 25,
+            love: 50,
+            adore: 100,
+            fire: 250
+        },
+        escapeOutput: false
+    };
     let writings = [];
     const getChallengeLinks = (html) => {
-        const { hashtags } = config;
+        const { hashtags, escapeOutput } = config;
         const document = (new DOMParser()).parseFromString(html, "text/html");
         const links = Array.from(document.querySelectorAll('a'));
-        const e = config.escapeOutput ? '\\' : '';
+        const e = escapeOutput ? '\\' : '';
         return links.map(l => hashtags.some(p => l.innerHTML.trim().startsWith(p)) ? `${e}*${e}[${l.innerHTML}](${l.href})${e}*` : '').filter(a => a);
     };
     const format = (writings, writing) => {
-        var _a;
+        var _a, _b;
         const { attributes: { created_at: createdAt, comment_count: commentCount, title, path, tags, body, likes } } = writing;
-        const { escapeOutput, showCategories, categories, showCounts, counts: { like, love, adore, fire } } = config;
+        const { escapeOutput, showCategories, category, showCounts, counts: { like, love, adore, fire } } = config;
         const links = getChallengeLinks(body);
         const tagNames = tags.map(t => t.slug);
-        const category = categories.reduce((cat, [title, slugs]) => {
+        const cat = Object.entries((_a = category === null || category === void 0 ? void 0 : category.tags) !== null && _a !== void 0 ? _a : []).reduce((cat, [id, ctags]) => {
             if (!showCategories)
-                return 'Misc';
-            if (cat !== 'Misc')
+                return 'misc';
+            if (cat !== 'misc')
                 return cat;
-            return tagNames.some(t => slugs.includes(t)) ? title : cat;
-        }, 'Misc');
+            return tagNames.some(t => ctags.includes(t)) ? id : cat;
+        }, 'misc');
         const popularity = (() => {
             let liked = '➖';
             let chatty = '➖';
@@ -249,8 +258,8 @@ const _generateIndex = () => __awaiter(this, void 0, void 0, function* () {
             return showCounts ? `${liked}${chatty}` : '➖';
         })();
         const e = escapeOutput ? '\\' : '';
-        return Object.assign(Object.assign({}, writings), { [category]: [
-                ...((_a = writings[category]) !== null && _a !== void 0 ? _a : []),
+        return Object.assign(Object.assign({}, writings), { [cat]: [
+                ...((_b = writings[cat]) !== null && _b !== void 0 ? _b : []),
                 `${e}* ${createdAt.substring(0, 10)} ${popularity} ${e}[${title}](https://fetlife.com${path}) ${links.join(' ')}`,
             ] });
     };
@@ -267,13 +276,12 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`;
     const list = () => {
         const processed = writings.filter(w => !w.attributes.only_friends).reduce(format, {});
         const e = config.escapeOutput ? '\\' : '';
-        const cats = config.categoryOrder
-            .filter(category => { var _a; return (_a = processed === null || processed === void 0 ? void 0 : processed[category]) === null || _a === void 0 ? void 0 : _a.length; })
-            .map(category => { var _a; return `${e}### ${category}\n\n${((_a = processed[category]) !== null && _a !== void 0 ? _a : []).join('\n')}\n`; });
+        const cats = Object.entries(config.category.order)
+            .filter(([id]) => { var _a; return (_a = processed === null || processed === void 0 ? void 0 : processed[id]) === null || _a === void 0 ? void 0 : _a.length; })
+            .map(([id, name]) => { var _a; return `${e}### ${name}\n\n${((_a = processed[id]) !== null && _a !== void 0 ? _a : []).join('\n')}\n`; });
         const strings = config.showLegend ? [legend(), ...cats] : cats;
         return strings.join('\n');
     };
-    const log = (msg) => alert(`FL WRITING INDEX: ${msg}`);
     const URL_REG = /https:\/\/fetlife.com\/users\/(\d+)(.*)?/;
     const perPage = 7;
     const getWritings = (userId, marker, i) => __awaiter(this, void 0, void 0, function* () {
@@ -327,7 +335,7 @@ ${e}* 🔥 🤯 > ${fire} loves / comments\n`;
         const template = document.getElementById(eids.template);
         const dialog = template.content.cloneNode(true);
         dialog.querySelector(`#${eids.title}`).innerHTML = title;
-        dialog.querySelector(`#${eids.config}`).innerHTML = configString.replaceAll('\n', '<br>').replaceAll(' ', '&nbsp;');
+        dialog.querySelector(`#${eids.config}`).innerHTML = JSON.stringify(config, null, 2).replaceAll('\n', '<br>').replaceAll(' ', '&nbsp;');
         dialog.querySelector(`#${eids.config}`).addEventListener('blur', () => {
             updateConfig();
             updatePreview();
