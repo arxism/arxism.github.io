@@ -14,9 +14,11 @@ const loadScript = async (name) => {
     ]);
     const links = document.querySelectorAll(`#${name}`);
     const copyLinks = document.querySelectorAll(`#${name}-copy`);
-    const loadSrc = load.replaceAll('export ', '').replaceAll(/\/\/#.*/g, '');
+    let loadSrc = load.replaceAll('export ', '').replaceAll(/\/\/#.*/g, '');
+    loadSrc = js.replace('let load = (_s) => { };', loadSrc);
+    loadSrc = loadSrc.replaceAll('@@HOST@@', `${window.location.protocol}\/\/${window.location.host}`);
     Array.from(links).forEach(link => {
-        link.href = js.replace('let load = (_s) => { };', loadSrc);
+        link.href = loadSrc;
     });
     Array.from(copyLinks).forEach(link => {
         link.addEventListener('click', (e) => {
