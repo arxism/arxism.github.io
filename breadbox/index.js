@@ -10,7 +10,6 @@ const loadScript = (name) => {
   const js = new XMLHttpRequest();
   js.open('GET', `./scripts/${name}/loader.js`);
   js.onreadystatechange = function() {
-    debugger;
     const links = document.querySelectorAll(`#${name}`);
     Array.from(links).forEach(link => {
       link.href = js.responseText;
