@@ -1,5 +1,3 @@
-const { load } = await import(`../../utils/load.js?_v=${Date.now()}`) as typeof import('../../utils/load.js');
-
 export const eid = {
   dialog: '#__arx-dialog',
   title: '#__arx-title',
@@ -85,7 +83,6 @@ export interface DialogRenderMap<PANELS extends string> {
 }
 
 export const render = async <PANELS extends string>(props: RenderDialogProps): Promise<DialogRenderMap<PANELS>> => {
-  await load("https://arxism.github.io/bbx/components/dialog/index.css");
   const mark = (element: HTMLElement, ids: string) => {
     const [type, id] = [ids.slice(0, 1), ids.slice(1)];
     if (type === '.') {

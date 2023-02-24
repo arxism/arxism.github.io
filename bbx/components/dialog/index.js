@@ -1,4 +1,3 @@
-const { load } = await import(`../../utils/load.js?_v=${Date.now()}`);
 export const eid = {
     dialog: '#__arx-dialog',
     title: '#__arx-title',
@@ -56,7 +55,6 @@ const setupTabs = (dialog) => {
     right?.querySelector('[data-position="right"]')?.click();
 };
 export const render = async (props) => {
-    await load("https://arxism.github.io/bbx/components/dialog/index.css");
     const mark = (element, ids) => {
         const [type, id] = [ids.slice(0, 1), ids.slice(1)];
         if (type === '.') {
