@@ -1,0 +1,212 @@
+#__arx-dialog {
+	overflow: hidden;
+	display: grid;
+	grid-gap: 0 20px;
+	grid-template-rows: 40px minmax(0, 1fr) 30px;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	grid-template-areas:
+		"tabs-left tabs-right"
+		"panels panels"
+		"title title";
+	max-width: 75vw;
+	width: 75vw;
+	background: #222;
+	color: #fff;
+	border: none;
+	padding: 0 20px 0 20px;
+}
+
+#__arx-dialog button:enabled:hover {
+	filter: brightness(1.2);
+	cursor: pointer;
+}
+
+#__arx-title {
+	font-size: 13px;
+	opacity: 0.5;
+	color: #fff;
+	grid-area: title;
+	align-self: center;
+	justify-self: flex-end;
+}
+
+#__arx-close {
+	position: absolute;
+	right: 0;
+	background: none;
+	border: none;
+	color: #CCC;
+	line-height: 40px;
+	right: 20px;
+	outline: none;
+}
+
+.__arx-pane-tabs {
+	display: flex;
+	flex-wrap: nowrap;
+	margin-right: 60px;
+	overflow-y: auto;
+}
+
+.__arx-pane-tab:enabled {
+	color: #555;
+}
+
+.__arx-pane-tab:disabled {
+	text-decoration: none;
+	opacity: 1 !important;
+	cursor: default !important;
+}
+
+.__arx-pane-tabs[data-position="left"] {
+	grid-area: tabs-left;
+}
+
+.__arx-pane-tabs[data-position="right"] {
+	grid-area: tabs-right;
+}
+
+.__arx-pane-tab {
+	border: none;
+	background: none;
+	padding: 2px;
+	font-weight: 700;
+	text-decoration: underline;
+	color: #fd0000;
+	margin-right: 5px;
+}
+
+#__arx-dialog button:disabled {
+	opacity: 0.5;
+}
+
+#__arx-panels {
+	grid-area: panels;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	grid-template-rows: minmax(0, 80vh);
+	gap: 0px 20px;
+	grid-template-areas: "left right";
+}
+
+.__arx-panel {
+	flex-direction: column;
+	display: none;
+}
+
+.__arx-panel[data-right],
+.__arx-panel[data-left] {
+	display: flex;
+}
+
+.__arx-panel[data-left] {
+	grid-area: left;
+}
+
+.__arx-panel[data-right] {
+	grid-area: right;
+}
+
+.__arx-pane-tabs[data-position="left"]>.__arx-pane-tab[data-position="right"] {
+	display: none;
+}
+
+/* start mobile styles */
+#__arx-dialog[data-mobile] {
+	width: 100vw;
+	max-width: calc(100vw - 50px);
+	padding: 0 10px 0 10px;
+	grid-template-areas:
+		"tabs tabs"
+		"panels panels"
+		"title title";
+}
+
+#__arx-dialog[data-mobile] .__arx-pane-tabs[data-position="left"] {
+	grid-area: tabs;
+}
+
+#__arx-dialog[data-mobile] #__arx-panels {
+	grid-template-columns: minmax(0, 1fr);
+	grid-template-areas: "left";
+}
+
+#__arx-dialog[data-mobile] .__arx-panel[data-left] {
+	display: flex;
+}
+
+#__arx-dialog[data-mobile] .__arx-panel[data-right] {
+	grid-area: left;
+}
+
+#__arx-dialog[data-mobile] .__arx-panel[data-right]:not([data-left]) {
+	display: none;
+}
+
+#__arx-dialog[data-mobile] .__arx-pane-tabs[data-position="right"] {
+	display: none;
+}
+
+#__arx-dialog[data-mobile] .__arx-pane-tabs[data-position="left"]>.__arx-pane-tab[data-position="right"] {
+	display: initial;
+}
+
+/* end mobile stiles */
+
+
+.__arx-content {
+	overflow: auto;
+	padding: 20px;
+	margin: 0;
+	background: #555;
+	line-height: 1.2;
+	flex: 1;
+	max-height: 100%;
+}
+
+.__arx-content:focus {
+	outline: 2px solid #AAA;
+}
+
+.__arx-content[data-error="true"] {
+	outline: 2px solid #c00;
+}
+
+.__arx-message {
+	line-height: 28px;
+	font-size: 12px;
+}
+
+.__arx-panel>div:first-of-type {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
+}
+
+.__arx-status:not(:empty),
+.__arx-error:not(:empty) {}
+
+.__arx-error {
+	color: #c00
+}
+
+.__arx-actions {
+	display: flex;
+	flex-direction: column;
+}
+
+.__arx-actionButton {
+	color: #fff;
+	padding: 10px;
+	background: #222;
+	border: 1px solid #444;
+	margin: 5px 0;
+}
+
+#__arx-dialog[data-loading="true"] .__arx-action-scan {
+	display: none;
+}
+
+#__arx-dialog[data-loading=""] .__arx-action-stop {
+	display: none;
+}
