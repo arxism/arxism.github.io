@@ -177,13 +177,15 @@ export const render = async <PANELS extends string>(props: RenderDialogProps): P
 
   const mql = window.matchMedia("(max-width: 800px)");
 
-  mql.addEventListener("change", (e) => {
-    if (e.matches) {
+  const onMq = (matches: boolean) => {
+    if (matches) {
       dialog.dataset.mobile = 'true';
     } else {
       delete dialog.dataset.mobile;
     }
-  });
+  }
+  mql.addEventListener("change", e => onMq(e.matches));
+  onMq(mql.matches);
 
   return {
     root: dialog,
