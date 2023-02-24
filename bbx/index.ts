@@ -4,8 +4,13 @@ const loadScript = async (name: string) => {
   const anchor = document.createElement('a');
   anchor.setAttribute("id", name);
   anchor.innerHTML = name.replaceAll('-', ' ').replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+
+  const copy = document.createElement('a');
+  copy.setAttribute("id", `${name}-copy`);
+  copy.innerHTML = "📋 Copy";
+
   const listSm = document.getElementById('bookmarklet-list-sm');
-  listSm?.appendChild(anchor);
+  listSm.innerHTML += `<li>${anchor.outerHTML} - ${copy.outerHTML}</li>`;
 
   const [js, load] = await Promise.all([
     (await fetch(`./src/${name}/loader.js`)).text(),
@@ -13,9 +18,17 @@ const loadScript = async (name: string) => {
   ]);
 
   const links = document.querySelectorAll(`#${name}`) as NodeListOf<HTMLAnchorElement>;
+  const copyLinks = document.querySelectorAll(`#${name}-copy`) as NodeListOf<HTMLAnchorElement>;
   const loadSrc = load.replaceAll('export ', '').replaceAll(/\/\/#.*/g, '');
   Array.from(links).forEach(link => {
     link.href = js.replace('let load = (_s) => { };', loadSrc);
+  })
+  Array.from(copyLinks).forEach(link => {
+    link.addEventListener('click', (e: MouseEvent) => {
+      navigator.clipboard.writeText(loadSrc);
+      (e.target as HTMLAnchorElement).innerHTML = "✔️ Copied!";
+      setTimeout(() => (e.target as HTMLAnchorElement).innerHTML = "📋 Copy", 3000);
+    });
   })
 }
 

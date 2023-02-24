@@ -5,10 +5,6 @@
   <script type="module" src="index.js" defer></script>
   <link rel="stylesheet" href="index.css">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <link rel="stylesheet" href="./lib/highlightjs.css">
-  <link rel="stylesheet" href="./lib/highlightjs.monokai-sublime.css">
-  <script src="./lib/highlightjs.min.js"></script>
 </head>
 
 <body data-language="ts">
@@ -16,19 +12,37 @@
     <section>
       <div>
         <article>
+          <h1>@Arx's BreadBox 🍞 (bbx) &ndash; a safe space for crumbs</h1>
           <h2>Installation and Usage</h2>
-          <p>A bookmarklet is a link that contains JavaScript. When a bookmarklet link is activated,
-            the browser runs the JavaScript code that it contains.</p>
-          <p>The most common way of installing a bookmarklet is to drag and drop the bookmarklet link
-            into your browser's bookmarks or favorites toolbar. The shortcut for toggling the display of the
-            bookmarks toolbar in Chrome, Firefox and Safari is <code class="key">Shift + Ctrl/Cmd + B</code>.</p>
-          <p>There are alternative, browser-specific installation methods such as copying the link location
-            of the bookmarklet link and pasting it into the Location field of a bookmark that you create using
-            your browser's Bookmark Manager or Show All Bookmarks feature.</p>
-          <p style="display: inline;">Drag a link into your bookmarks toolbar:</p>
-          <div id="bookmarklet-list-sm"></div>
-          <ul id="bookmarklet-list">
-          </ul>
+          <p>A bookmarklet is a link that contains JavaScript. When a bookmarklet link is activated, the browser runs
+            the JavaScript code that it contains.</p>
+          <p>Clicking/tapping on the links below will run the script here, for preview. They will update automatically
+            once installed and you can switch from one to another by clicking on the script name in the bottom right of
+            the resulting dialog. Each has a "help" tab with an explanation about how it works and the features it
+            provides.</p>
+          </ol>
+          <p style="display: inline;">See below about adding the bookmark to your browser:</p>
+          <ul id="bookmarklet-list-sm"></ul>
+          <H3>To use on Desktop:</H3>
+          <ol>
+            <li>Toggle the display of the bookmarks toolbar.<br> - The shortcut for doing so in Chrome, Firefox and
+              Safari
+              is <code class="key">Shift +
+                Ctrl/Cmd + B</code>.</li>
+            <li>Drag the bookmark link into your browser's bookmarks toolbar.</li>
+          </ol>
+          <H3>To use on Mobile:</H3>
+          <ol>
+            <li>Click the "copy" link next to the bookmarklet you want.</li>
+            <li>Bookmark this page with your browser's bookmark.<br> - usually an in-menu star or similar</li>
+            <li>Click "edit" on the popup notification.</li>
+            <li>Change the name of the bookmarklet to "bbx" or similar.</li>
+            <li>Paste the contents of your clipboard into the "url" field.</li>
+            <li>Click "save"</li>
+            <li>When you want to run the script on a page,<br> - type "bbx" into the url bar and tap the script<br> - or
+              find it
+              in your
+              bookmarks manager.</li>
         </article>
       </div>
     </section>

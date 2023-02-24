@@ -32,28 +32,18 @@ code.key {
   white-space: nowrap;
 }
 
-#bookmarklet-list-sm {
-  display: inline;
-}
+#bookmarklet-list-sm {}
 
-#bookmarklet-list-sm>a {
+#bookmarklet-list-sm a {
+  text-underline-offset: 4px;
+  cursor: pointer;
   text-decoration: underline;
-  margin: 0 10px 0 5px;
 }
 
 .bookmark>div {
   text-decoration: none;
   position: relative;
   width: 100%;
-}
-
-ul {
-  display: inline;
-  padding: 0;
-}
-
-li {
-  list-style: none;
 }
 
 .bookmark {
