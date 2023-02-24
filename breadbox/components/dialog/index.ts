@@ -85,7 +85,7 @@ export interface DialogRenderMap<PANELS extends string> {
 }
 
 export const render = async <PANELS extends string>(props: RenderDialogProps): Promise<DialogRenderMap<PANELS>> => {
-  await load("http://localhost:8080/breadbox/components/dialog/index.css");
+  await load("https://arxism.github.io/breadbox/components/dialog/index.css");
   const mark = (element: HTMLElement, ids: string) => {
     const [type, id] = [ids.slice(0, 1), ids.slice(1)];
     if (type === '.') {

@@ -10,9 +10,9 @@ javascript: (async () => {
     });
 
   const load = async (file: string) => {
-    const noCache = Date.now();
-    return loadJS(`${file}?_v=${noCache}`);
+    const nc = Date.now();
+    return loadJS(`${file}?_v=${nc}`);
   };
 
-  load('http://localhost:8080/breadbox/scripts/writing-index/index.js')
+  load('https://arxism.github.io/breadbox/scripts/writing-index/index.js')
 })()

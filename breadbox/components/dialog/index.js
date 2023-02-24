@@ -56,7 +56,7 @@ const setupTabs = (dialog) => {
     right?.querySelector('[data-position="right"]')?.click();
 };
 export const render = async (props) => {
-    await load("http://localhost:8080/breadbox/components/dialog/index.css");
+    await load("https://arxism.github.io/breadbox/components/dialog/index.css");
     const mark = (element, ids) => {
         const [type, id] = [ids.slice(0, 1), ids.slice(1)];
         if (type === '.') {
