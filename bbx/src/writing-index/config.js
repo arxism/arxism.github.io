@@ -1,0 +1,46 @@
+export const config = {
+    showLegend: true,
+    showCategories: true,
+    showCounts: true,
+    category: {
+        tags: {
+            index: ["index"],
+            erotica: ["erotica"],
+            photography: ["photography"],
+            challenge: ["challenge"],
+            polls: ["poll"],
+            satire: ["satire", "parody"],
+            poetry: ["poetry", "poem"],
+            ds: [
+                "d-s",
+                "dominant",
+                "dominance",
+                "submission",
+                "dom",
+                "dominate",
+                "domination",
+            ],
+            fetlife: ["fetlife"],
+        },
+        order: {
+            polls: "Polls",
+            challenge: "Challenges",
+            misc: "General",
+            fetlife: "FetLife",
+            ds: "Dominance / submission",
+            poetry: "Poetry",
+            satire: "Satire / Parody",
+            erotica: "Erotica",
+            photography: "Photography",
+        },
+    },
+    hashtags: ["WBDC", "#"],
+    counts: {
+        like: 25,
+        love: 50,
+        adore: 100,
+        fire: 250,
+    },
+    escapeOutput: false,
+};
+//# sourceMappingURL=config.js.map
